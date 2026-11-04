@@ -32,7 +32,7 @@
   const ALLOWED_EXAM_DATE = '2026-11-05';
 
   const DEFAULT_SETTINGS = {
-    examTitle: 'AI 와 데이터 분석 (CNN·RNN·XAI·최적화·LLM·피지컬AI) 역량 평가 (총 90문항)',
+    examTitle: 'AI 와 데이터 분석 역량 평가 (총 90문항)',
     choiceTimeLimit: 60,        // 객관식 1문항 1분 (60초)
     passScore: 80,              // 합격 기준 점수 (100점 환산 기준 80점)
     shuffleQuestions: true,     // 응시자마다 문제 순서 섞기
