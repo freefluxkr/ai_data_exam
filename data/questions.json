@@ -1,0 +1,1532 @@
+[
+  {
+    "id": 1,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "초급",
+    "question": "2차원 이미지를 처음부터 1차원 벡터로 평탄화(Flatten)하여 일반 다층 퍼셉트론(MLP/Dense)에 곧바로 입력할 때 발생하는 문제점과, 이를 해결한 합성곱 신경망(CNN)의 핵심 원리로 가장 올바른 것은?",
+    "code": "# MLP 직결 시: (28, 28, 1) -> (784,) 로 즉시 평탄화\n# CNN 적용 시: Conv2D(32, kernel_size=(3, 3))로 2D 공간 유지",
+    "options": [
+      "MLP는 상하좌우 인접 픽셀 간의 2차원 공간적·기하학적 구조(Spatial Topology)를 파괴하고 파라미터 수가 폭증하지만, CNN은 국소 수용장(Local Receptive Field)과 가중치 공유(Weight Sharing)를 통해 공간 특징을 보존하며 파라미터를 획기적으로 줄인다.",
+      "CNN은 이미지를 1차원 문자열로 변환한 뒤 알파벳 순서대로 정렬하여 연산량을 줄인다.",
+      "MLP는 흑백 이미지만 처리할 수 있고 컬러(RGB) 이미지는 문법적으로 입력받을 수 없다.",
+      "CNN은 모든 픽셀마다 서로 다른 고유한 필터 가중치를 할당하여 파라미터 수를 MLP의 100배로 늘린다."
+    ],
+    "answer": 0,
+    "explanation": "이미지를 처음부터 1차원으로 펼치면 위·아래·양옆 픽셀의 공간적 맥락이 사라지고 입력 해상도가 커질수록 가중치 수가 기하급수적으로 증가합니다. CNN은 작은 커널(필터)이 슬라이딩하며 가중치를 공유(Weight Sharing)하고 국소 특징(모서리, 윤곽선 등)을 추출하므로 공간 정보를 보존하고 과적합을 예방합니다."
+  },
+  {
+    "id": 2,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "중급",
+    "question": "입력 이미지의 해상도가 32×32이고, 커널(필터) 크기가 5×5, 패딩(Padding)이 0('valid'), 스트라이드(Stride)가 1일 때 합성곱(Conv2D) 연산을 거친 후 출력 특성 맵(Feature Map)의 공간 크기(Height × Width)는?",
+    "code": "출력 크기 공식: O = floor((I - K + 2P) / S) + 1\n- I (Input): 32\n- K (Kernel): 5\n- P (Padding): 0\n- S (Stride): 1",
+    "options": [
+      "32 × 32",
+      "28 × 28",
+      "27 × 27",
+      "16 × 16"
+    ],
+    "answer": 1,
+    "explanation": "합성곱 출력 크기 공식 O = (I - K + 2P) / S + 1 에 대입하면 (32 - 5 + 0) / 1 + 1 = 27 + 1 = 28이 됩니다. 따라서 출력 특성 맵의 공간 크기는 28 × 28입니다."
+  },
+  {
+    "id": 3,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "초급",
+    "question": "합성곱 층(Conv2D)을 여러 겹 쌓을 때 특성 맵의 가로·세로 크기가 점점 줄어들고 외곽 테두리(Border) 픽셀 정보가 유실되는 현상을 막기 위해, 입력 주변을 0으로 감싸 입출력 공간 해상도를 동일하게 유지(Stride=1 기준)하는 Keras 옵션은?",
+    "code": "layer = tf.keras.layers.Conv2D(\n    filters=64, kernel_size=(3, 3), strides=1, padding=____\n)",
+    "options": [
+      "padding='valid'",
+      "padding='Drop'",
+      "padding='same'",
+      "padding='flatten'"
+    ],
+    "answer": 2,
+    "explanation": "padding='valid'는 패딩을 추가하지 않아 특성 맵 크기가 줄어드는 옵션이며, padding='same'(Zero-Padding)은 입력 외곽에 0을 채워 넣어 스트라이드가 1일 때 입력과 출력의 가로·세로 크기를 동일하게 유지하고 가장자리 정보 손실을 방지합니다."
+  },
+  {
+    "id": 4,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "고급",
+    "question": "입력 채널이 3(RGB)인 컬러 이미지가 `Conv2D(filters=32, kernel_size=(3, 3), use_bias=True)` 계층을 통과할 때, 이 합성곱 계층에서 학습해야 하는 총 파라미터(가중치 W + 편향 b)의 개수는?",
+    "code": "총 파라미터 수 = (K_h × K_w × C_in + 1) × C_out\n- 커널 크기: 3 × 3\n- 입력 채널(C_in): 3\n- 필터 개수(C_out): 32",
+    "options": [
+      "288개",
+      "320개",
+      "864개",
+      "896개"
+    ],
+    "answer": 3,
+    "explanation": "하나의 필터는 입력의 모든 채널(3개)을 동시에 커버하므로 필터 1개당 가중치 수는 3 × 3 × 3 = 27개이고, 여기에 편향(bias) 1개를 더하면 28개입니다. 총 32개의 필터가 있으므로 28 × 32 = 896개의 학습 파라미터가 생성됩니다."
+  },
+  {
+    "id": 5,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "초급",
+    "question": "CNN에서 합성곱 계층 뒤에 배치하는 `MaxPooling2D(pool_size=(2, 2), strides=2)` 계층의 역할과 특성으로 옳지 않은 것은?",
+    "code": "입력 2×2 영역: [[1.2, 4.8],\n                [0.5, 3.1]]  --> MaxPooling2D(2, 2) --> [4.8]",
+    "options": [
+      "국소 영역(2×2) 내에서 가장 강하게 활성화된 최댓값(Max)만 남겨 가로·세로 크기를 각각 절반으로 줄이고, 공간 연산량과 데이터 크기를 75%(1/4로 축소) 절감한다.",
+      "풀링 윈도우마다 고유한 가중치 행렬(W)과 편향(b)을 학습하므로 모델의 전체 학습 파라미터 수가 2배로 증가한다.",
+      "객체가 이미지 내에서 미세하게 이동하거나 흔들려도 동일한 최댓값이 추출되므로 작은 평행이동 불변성(Translation Invariance)을 부여한다.",
+      "불필요한 배경 노이즈를 억제하고 가장 두드러진 핵심 윤곽선·특징 신호만 다음 계층으로 압축 전달한다."
+    ],
+    "answer": 1,
+    "explanation": "MaxPooling2D는 지정된 영역에서 단순히 최댓값을 뽑아내는 고정된 수학 연산(비모수 연산)이므로, 학습해야 할 가중치(Weight)나 편향(Bias) 파라미터가 단 1개도(0개) 없습니다."
+  },
+  {
+    "id": 6,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "중급",
+    "question": "형상(Shape)이 `(Batch=64, Height=14, Width=14, Channels=128)`인 특성 맵에 `MaxPooling2D(pool_size=(2, 2))`를 적용했을 때 출력 텐서의 형상과 학습 파라미터 수는?",
+    "code": "x = Input(shape=(14, 14, 128))  # 배치 크기 = 64\ny = MaxPooling2D(pool_size=(2, 2))(x)  # 기본 strides = pool_size",
+    "options": [
+      "출력 형상: (32, 7, 7, 128), 학습 파라미터 수: 0개",
+      "출력 형상: (64, 7, 7, 64), 학습 파라미터 수: 512개",
+      "출력 형상: (64, 7, 7, 128), 학습 파라미터 수: 0개",
+      "출력 형상: (64, 12, 12, 128), 학습 파라미터 수: 128개"
+    ],
+    "answer": 2,
+    "explanation": "MaxPooling2D(2, 2)는 배치 크기(64)와 채널 수(128)는 전혀 건드리지 않고, 공간 해상도인 높이와 너비만 각각 절반(14 → 7)으로 다운샘플링합니다. 또한 학습 파라미터는 0개이므로 출력 형상은 (64, 7, 7, 128)입니다."
+  },
+  {
+    "id": 7,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "중급",
+    "question": "최댓값을 취하는 `MaxPooling2D`와 평균값을 취하는 `AveragePooling2D`(또는 `GlobalAveragePooling2D`)를 비교한 설명으로 가장 적절한 것은?",
+    "code": "영역 A = [[0, 0], [0, 9]]\n- MaxPool(A) = 9\n- AvgPool(A) = 2.25",
+    "options": [
+      "컴퓨터 비전에서는 활성화 함수가 있으면 MaxPooling을 문법적으로 사용할 수 없다.",
+      "MaxPooling은 항상 출력 값을 0으로 만들고, AveragePooling은 항상 음수만 출력한다.",
+      "AveragePooling은 채널 수를 4배로 늘리고, MaxPooling은 채널 수를 1개로 합친다.",
+      "MaxPooling은 날카로운 엣지(Edge)나 강한 텍스처 같은 국소적 핵심 특징을 선명하게 보존하는 데 유리하고, AveragePooling은 영역 전체의 값을 고르게 반영하여 특징을 부드럽게(Smoothing) 요약한다."
+    ],
+    "answer": 3,
+    "explanation": "MaxPooling은 미세 결함이나 뚜렷한 윤곽선처럼 국소적으로 강하게 발화한 신호가 주변의 0에 희석되지 않도록 보존해주며, AveragePooling(및 GAP)은 전체 공간의 평균적 분포를 부드럽게 요약하는 데 강점이 있습니다."
+  },
+  {
+    "id": 8,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "초급",
+    "question": "CNN 아키텍처에서 2D 합성곱·풀링 계층(특징 추출부, Feature Extractor)과 최종 분류를 담당하는 완전연결 계층(`Dense`, 분류기) 사이를 이어주는 가교 역할을 하며, 다차원 특성 맵을 1차원 벡터로 일렬로 펴주는 계층은?",
+    "code": "# (None, 7, 7, 64) ---> (None, 3136) ---> Dense(10, activation='softmax')",
+    "options": [
+      "Flatten",
+      "Conv2DTranspose",
+      "BatchNormalization",
+      "Dropout"
+    ],
+    "answer": 0,
+    "explanation": "Dense(완전연결) 계층은 1차원 특징 벡터를 입력으로 받아 종합적인 의사결정을 수행하므로, 3차원(높이×너비×채널) 특성 맵을 배치 축을 제외한 1차원 벡터(H×W×C)로 평탄화해 주는 Flatten 계층이 두 영역의 가교 역할을 합니다."
+  },
+  {
+    "id": 9,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "중급",
+    "question": "다음 Keras CNN 모델 코드에서 `Flatten()` 계층을 통과한 직후의 출력 형상(배치 제외)과, 이어지는 `Dense(100)` 계층에서 생성되는 학습 파라미터(가중치 + 편향)의 총개수는?",
+    "code": "# 직전 MaxPooling2D 출력 형상: (None, 8, 8, 32)\nx = Flatten()(pool_out)\nout = Dense(100, activation='relu')(x)",
+    "options": [
+      "Flatten 출력: (256,), Dense 파라미터: 25,700개",
+      "Flatten 출력: (2048,), Dense 파라미터: 204,800개",
+      "Flatten 출력: (2048,), Dense 파라미터: 204,900개",
+      "Flatten 출력: (64,), Dense 파라미터: 6,500개"
+    ],
+    "answer": 2,
+    "explanation": "Flatten 출력 크기는 8 × 8 × 32 = 2,048입니다. 이어지는 Dense(100) 계층은 입력 2,048개와 출력 뉴런 100개가 완전 연결되므로 가중치 2,048 × 100 = 204,800개에 출력 뉴런마다 붙는 편향(bias) 100개를 더해 총 204,900개의 파라미터를 가집니다."
+  },
+  {
+    "id": 10,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "고급",
+    "question": "전통적인 CNN에서 `Flatten()` 직후 거대한 `Dense` 층을 연결할 때 전체 모델 파라미터의 80~90%가 이곳에 집중되어 과적합이 발생하는 문제를 해결하기 위해, ResNet 등 최신 아키텍처에서 각 채널(H×W) 전체의 평균값 1개씩만 뽑아 `(None, H, W, C)`를 즉시 `(None, C)`로 압축하는 계층은?",
+    "code": "# (None, 7, 7, 512) -> Flatten 시 25,088차원\n# (None, 7, 7, 512) -> 이 계층 적용 시 512차원!",
+    "options": [
+      "UpSampling2D",
+      "ZeroPadding2D",
+      "SpatialDropout2D",
+      "GlobalAveragePooling2D (GAP)"
+    ],
+    "answer": 3,
+    "explanation": "GlobalAveragePooling2D(GAP)는 각 특성 맵 채널(H×W)의 전체 평균을 구해 채널당 단 1개의 스칼라 값으로 요약하므로, (None, 7, 7, 512) 텐서를 추가 파라미터 없이 즉시 (None, 512) 벡터로 변환하여 Dense 층의 파라미터 폭증과 과적합을 극적으로 줄여줍니다."
+  },
+  {
+    "id": 11,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "초급",
+    "question": "초기 신경망에서 은닉층 활성화 함수로 널리 쓰였던 시그모이드(Sigmoid) 함수 대신 현대 딥러닝 은닉층의 표준으로 자리 잡은 ReLU(`f(x) = max(0, x)`) 함수의 가장 핵심적인 장점은?",
+    "code": "Sigmoid: σ(x) = 1 / (1 + e^(-x))  --> 최대 미분값 = 0.25\nReLU   : f(x) = max(0, x)         --> x > 0 일 때 미분값 = 1.0",
+    "options": [
+      "양수 구간(x > 0)에서 미분값(기울기)이 항상 1로 유지되어 깊은 신경망의 오차 역전파 시 기울기 소실(Vanishing Gradient) 문제를 완화하고, 지수 연산(exp)이 없어 연산 속도가 매우 빠르다.",
+      "입력값이 아무리 커도 출력을 무조건 -1과 +1 사이로 압축하여 출력 폭주를 막는다.",
+      "음수 입력(x < 0)이 들어올 때 기울기를 100배로 증폭시켜 학습을 가속한다.",
+      "최종 출력층에서 모든 클래스의 출력 합이 정확히 1.0이 되도록 확률로 정규화해 준다."
+    ],
+    "answer": 0,
+    "explanation": "시그모이드는 미분 최댓값이 0.25에 불과해 층이 깊어질수록 기울기가 0으로 사라지는 기울기 소실(Vanishing Gradient)을 겪습니다. 반면 ReLU는 x > 0 구간에서 기울기가 1이므로 깊은 층까지 오차가 온전히 전파되며 단순 비교 연산(max(0, x))만으로 작동해 계산 효율이 뛰어납니다."
+  },
+  {
+    "id": 12,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "중급",
+    "question": "ReLU 함수를 사용할 때 학습률이 지나치게 크거나 큰 음수 편향이 형성되면, 뉴런의 입력이 계속 음수(x ≤ 0)에 머물러 출력과 기울기가 영구적으로 0이 되어 가중치가 더 이상 업데이트되지 않는 현상과 이를 해결하기 위해 음수 구간에 작은 기울기(예: `αx`, α=0.01)를 부여한 변형 함수는?",
+    "code": "f(x) = x      (if x > 0)\nf(x) = 0.01x  (if x <= 0)",
+    "options": [
+      "모드 붕괴(Mode Collapse) — Softmax",
+      "죽은 뉴런 문제(Dying ReLU) — Leaky ReLU (및 ELU, GELU)",
+      "내부 공변량 변화(Internal Covariate Shift) — Sigmoid",
+      "장기 의존성 문제(Long-Term Dependency) — Step Function"
+    ],
+    "answer": 1,
+    "explanation": "ReLU는 x ≤ 0 구간에서 출력과 미분값이 모두 0이므로 한 번 음수 영역에 갇힌 뉴런이 영원히 깨어나지 못하는 'Dying ReLU(죽은 뉴런)' 현상이 발생할 수 있습니다. Leaky ReLU는 음수 구간에 0.01x 같은 미세한 기울기를 남겨 뉴런이 죽지 않도록 방지합니다."
+  },
+  {
+    "id": 13,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "초급",
+    "question": "3개 이상의 클래스를 구분하는 다중 클래스 분류(Multi-class Classification) 모델의 최종 출력층에 사용되며, 임의의 실수 로짓(Logit, z_i) 벡터를 지수 함수(exp)에 통과시켜 모든 출력 값이 0~1 사이이고 전체 합이 정확히 1.0인 확률 분포로 변환하는 활성화 함수는?",
+    "code": "P(y = k | z) = exp(z_k) / Σ_{j=1}^{K} exp(z_j)",
+    "options": [
+      "ReLU (Rectified Linear Unit)",
+      "Hyperbolic Tangent (tanh)",
+      "Linear (Identity)",
+      "Softmax"
+    ],
+    "answer": 3,
+    "explanation": "Softmax 함수는 출력층의 원시 점수(Logit)에 지수 함수를 취해 양수로 만든 뒤 전체 합으로 나누어 주므로, 각 클래스에 속할 사후 확률(합계 = 1.0)로 명확하게 해석할 수 있게 해줍니다."
+  },
+  {
+    "id": 14,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "중급",
+    "question": "3-클래스 분류 모델의 마지막 Dense 층 로짓(Logit) 출력이 `z = [2.0, 1.0, 0.0]`일 때, 이에 Softmax 함수를 적용한 결과에 대한 설명으로 가장 올바른 것은? (단, e ≈ 2.718)",
+    "code": "import numpy as np\nz = np.array([2.0, 1.0, 0.0])\nprobs = np.exp(z) / np.sum(np.exp(z))",
+    "options": [
+      "첫 번째 클래스의 확률이 약 0.665(66.5%)로 가장 높고, 세 클래스 확률의 총합은 정확히 1.0이며, 지수 함수 특성상 큰 값과 작은 값의 격차가 더욱 뚜렷하게 증폭된다.",
+      "세 클래스의 확률이 각각 2/3, 1/3, 0으로 선형 비례하며 세 번째 클래스의 확률은 정확히 0.0이 된다.",
+      "모든 원소에 동일한 상수 c=10을 더한 z' = [12.0, 11.0, 10.0]을 넣으면 Softmax 결과 확률이 완전히 달라진다.",
+      "출력 확률의 합이 3.0이 되며 음수 확률이 포함될 수 있다."
+    ],
+    "answer": 0,
+    "explanation": "exp(2)≈7.389, exp(1)≈2.718, exp(0)=1.0 이므로 합은 약 11.107이고, 확률은 각각 [0.665, 0.245, 0.090]이 되어 합이 1.0이 됩니다. exp(0)=1이므로 0.0 입력도 약 9%의 양수 확률을 가지며, Softmax는 모든 원소에 같은 상수를 더해도 결과 확률이 불변(Shift Invariance)입니다."
+  },
+  {
+    "id": 15,
+    "type": "multiple",
+    "category": "1. 컴퓨터 비전 & 합성곱 신경망",
+    "day": "Ch 01~04",
+    "difficulty": "중급",
+    "question": "Keras에서 10개의 클래스를 분류하는 CNN 모델을 컴파일할 때, 정답 라벨 `y_train`이 원-핫 인코딩이 아닌 정수 인덱스(예: `0, 1, 2, ..., 9`) 형태로 되어 있는 경우 출력층 `Dense(10, activation='softmax')`와 짝을 이루는 가장 적절한 손실 함수(Loss Function)는?",
+    "code": "# y_train shape: (60000,) -> 값 예시: [5, 0, 4, 1, 9, ...]\nmodel.compile(optimizer='adam', loss=____, metrics=['accuracy'])",
+    "options": [
+      "mean_squared_error (MSE)",
+      "sparse_categorical_crossentropy",
+      "categorical_crossentropy",
+      "binary_crossentropy"
+    ],
+    "answer": 1,
+    "explanation": "다중 분류에서 정답 라벨이 원-핫 벡터(예: [0,0,1,0...])일 때는 categorical_crossentropy를 사용하고, 정수 인덱스(0~9) 그대로일 때는 별도의 원-핫 변환 없이 메모리 효율적으로 교차 엔트로피를 계산하는 sparse_categorical_crossentropy를 사용합니다."
+  },
+  {
+    "id": 16,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "초급",
+    "question": "주가, 전력 수요량, 공장 센서 로그, 자연어 문장처럼 시간의 흐름이나 순서(Sequence)에 따라 관측된 시계열 데이터를 일반 다층 퍼셉트론(MLP)으로 처리하기 어렵고 순환 신경망(RNN)이 필요한 근본적인 이유는?",
+    "code": "시계열 특성: y_t 는 과거 관측치 (y_{t-1}, y_{t-2}, ...) 와 강한 자기상관성(Autocorrelation)을 가짐",
+    "options": [
+      "MLP는 실수(Float) 데이터를 입력받을 수 없고 오직 이미지 픽셀만 처리할 수 있기 때문이다.",
+      "MLP는 입력 샘플과 특성들이 시간 순서와 무관하게 서로 독립이라고 가정하여 과거 문맥을 기억하지 못하지만, RNN은 이전 시점의 은닉 상태(h_{t-1})를 현재 시점(t)으로 되먹임(Recurrent)하는 순환 고리를 통해 시간적 맥락과 순서 정보를 유지하기 때문이다.",
+      "RNN은 과거 데이터를 전혀 보지 않고 미래 데이터만 무작위로 생성하기 때문이다.",
+      "시계열 데이터는 항상 모든 시점의 값이 동일하여 가중치 학습이 필요 없기 때문이다."
+    ],
+    "answer": 1,
+    "explanation": "시계열 및 순차 데이터는 앞선 시점의 상태가 현재 시점에 영향을 미치는 시간적 종속성(Temporal Dependency)과 자기상관성을 가집니다. RNN은 내부 은닉 상태(Hidden State)를 다음 타임스텝으로 전달하는 순환 구조를 통해 과거의 기억을 축적하며 예측을 수행합니다."
+  },
+  {
+    "id": 17,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "중급",
+    "question": "기본 순환 신경망(SimpleRNN) 셀이 현재 시점 t에서 새로운 은닉 상태 `h_t`를 갱신하는 수학적 점화식으로 가장 올바른 것은?",
+    "code": "- x_t : 현재 시점 t의 입력 벡터\n- h_{t-1} : 직전 시점 t-1의 은닉 상태 벡터\n- W_xh, W_hh : 입력-은닉 및 은닉-은닉 가중치 행렬, b_h : 편향",
+    "options": [
+      "h_t = max(0, x_t / h_{t-1})",
+      "h_t = softmax(W_xh · x_t) - h_{t-1}",
+      "h_t = tanh(W_xh · x_t + W_hh · h_{t-1} + b_h)",
+      "h_t = W_xh · x_t (이전 상태 h_{t-1}은 연산에 사용하지 않음)"
+    ],
+    "answer": 2,
+    "explanation": "SimpleRNN은 현재 시점의 입력(x_t)에 가중치 W_xh를 곱한 값과, 직전 시점의 은닉 상태(h_{t-1})에 순환 가중치 W_hh를 곱한 값을 더한 뒤 하이퍼볼릭 탄젠트(tanh) 활성화 함수를 통과시켜 [-1, 1] 범위의 새로운 은닉 상태 h_t를 생성합니다."
+  },
+  {
+    "id": 18,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "초급",
+    "question": "Keras의 `SimpleRNN` 또는 `LSTM` 계층에 시계열 데이터를 입력할 때 요구되는 표준 3차원 텐서(3D Tensor)의 형상(Shape) 규격으로 올바른 것은?",
+    "code": "X_train = np.reshape(X_train, (____, ____, ____))",
+    "options": [
+      "(Height, Width, Channels)",
+      "(Features, Batch_Size, Channels)",
+      "(Time_Steps, Kernel_Size, Stride)",
+      "(Batch_Size, Time_Steps, Features)"
+    ],
+    "answer": 3,
+    "explanation": "Keras 순환 신경망 계층의 기본 입력은 (배치 샘플 수 Batch_Size, 시계열 윈도우 길이 Time_Steps, 시점당 관측 변수 수 Features)의 3차원 텐서입니다. 예를 들어 7일간의 온도·습도(2개 변수)로 내일을 예측하는 샘플 100개는 (100, 7, 2)가 됩니다."
+  },
+  {
+    "id": 19,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "중급",
+    "question": "RNN을 시간 축으로 펼쳐서 살펴볼 때, 시점 t=1부터 t=T까지 모든 타임스텝에서 사용되는 가중치 행렬(`W_xh`, `W_hh`, `W_hy`)에 대한 설명으로 가장 올바른 것은?",
+    "code": "t=1 ──(W_hh)──> t=2 ──(W_hh)──> t=3 ── ... ──> t=T",
+    "options": [
+      "모든 타임스텝(t=1..T)에서 동일한 가중치 행렬(W_xh, W_hh, W_hy)을 시간 축으로 공유(Temporal Weight Sharing)하므로, 시퀀스 길이가 달라져도 모델의 학습 파라미터 개수는 일정하게 유지된다.",
+      "짝수 타임스텝과 홀수 타임스텝이 서로 다른 가중치를 번갈아 사용한다.",
+      "매 타임스텝마다 완전히 새로운 별도의 가중치 행렬이 생성되어 시퀀스가 길어질수록 파라미터 수가 비례해서 늘어난다.",
+      "마지막 타임스텝(t=T)에서만 가중치가 존재하고 앞선 시점에는 가중치가 없다."
+    ],
+    "answer": 0,
+    "explanation": "CNN이 공간 축으로 커널 가중치를 공유한다면, RNN은 시간 축(Time axis)을 따라 모든 타임스텝에서 동일한 가중치 행렬을 공유합니다. 덕분에 파라미터 수가 시퀀스 길이에 무관하게 고정되고 임의 길이의 시계열 패턴을 일반화하여 학습할 수 있습니다."
+  },
+  {
+    "id": 20,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "고급",
+    "question": "Keras에서 `SimpleRNN(units=64, input_shape=(10, 4))` 계층을 선언했을 때, 이 계층 내부에서 학습되는 총 파라미터(가중치 + 편향)의 개수는? (단, 타임스텝 길이는 10, 시점당 입력 피처 수는 4, 은닉 유닛 수는 64이다.)",
+    "code": "총 파라미터 공식 = (입력 피처 수 × 은닉 유닛 수) + (은닉 유닛 수 × 은닉 유닛 수) + 편향(은닉 유닛 수)\n= d_in × h + h × h + h = (d_in + h + 1) × h",
+    "options": [
+      "256개",
+      "640개",
+      "4,416개",
+      "4,160개"
+    ],
+    "answer": 2,
+    "explanation": "SimpleRNN의 파라미터는 시퀀스 길이(10)와 무관하며, 입력 가중치 W_xh(4 × 64 = 256) + 순환 가중치 W_hh(64 × 64 = 4,096) + 편향 b_h(64) = 256 + 4,096 + 64 = 4,416개입니다."
+  },
+  {
+    "id": 21,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "중급",
+    "question": "기본 순환 신경망(SimpleRNN)이 시간 역전파(BPTT, Backpropagation Through Time)로 긴 시퀀스를 학습할 때, 초반 시점의 중요한 정보가 후반 시점까지 전달되지 못하고 잊혀지는 '장기 의존성 문제(Long-Term Dependency Problem)'의 수학적 원인은?",
+    "code": "∂h_T / ∂h_1 = ∏_{k=2}^{T} (∂h_k / ∂h_{k-1}) ∝ (W_hh^T)^{T-1}",
+    "options": [
+      "타임스텝이 3을 넘어가면 모든 가중치가 자동으로 삭제되도록 설계되었기 때문이다.",
+      "SimpleRNN에는 활성화 함수가 전혀 존재하지 않기 때문이다.",
+      "입력 데이터를 역순으로 넣으면 파이썬 인터프리터가 강제 종료되기 때문이다.",
+      "시간 축을 따라 역전파할 때 순환 가중치 행렬(W_hh)과 tanh 도함수(≤ 1)가 타임스텝 수만큼 거듭제곱으로 연속 곱해지면서, 고유값이 1보다 작으면 기울기가 0으로 소실(Vanishing)되고 1보다 크면 폭주(Exploding)하기 때문이다."
+    ],
+    "answer": 3,
+    "explanation": "BPTT에서는 연쇄 법칙(Chain Rule)에 의해 타임스텝 길이 T만큼 야코비안 행렬(W_hh 및 tanh 미분값)이 반복 곱해집니다. 이로 인해 시퀀스가 길어질수록 기울기가 지수적으로 0에 수렴(기울기 소실)하여 먼 과거의 정보를 학습하지 못하는 장기 의존성 문제가 발생합니다."
+  },
+  {
+    "id": 22,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "초급",
+    "question": "SimpleRNN의 장기 의존성 및 기울기 소실 문제를 극복하기 위해 고안된 LSTM(Long Short-Term Memory)에서, 단기 기억을 담당하는 은닉 상태(`h_t`) 외에 별도로 추가되어 장기 기억을 행렬 곱 없이 덧셈(+)과 원소별 곱셈(⊙)만으로 보존하며 흘려보내는 '정보의 고속도로(컨베이어 벨트)'는?",
+    "code": "C_t = f_t ⊙ C_{t-1} + i_t ⊙ C~_t",
+    "options": [
+      "셀 상태 (Cell State, C_t)",
+      "드롭아웃 마스크 (Dropout Mask)",
+      "맥스 풀링 버퍼 (Max Pooling Buffer)",
+      "소프트맥스 큐 (Softmax Queue)"
+    ],
+    "answer": 0,
+    "explanation": "LSTM의 핵심은 셀 상단을 가로지르는 컨베이어 벨트 역할의 셀 상태(Cell State, C_t)입니다. C_t는 비선형 활성화 함수나 가중치 행렬 곱을 직접 거치지 않고 선형적인 덧셈과 게이트 곱셈만으로 갱신되므로, 수백 스텝 이전의 장기 기억과 기울기가 손실 없이 흐를 수 있습니다."
+  },
+  {
+    "id": 23,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "초급",
+    "question": "LSTM 셀 내부에서 장기 기억(`C_{t-1}`) 중 불필요해진 과거 정보를 얼마나 지울지 결정하는 게이트, 새로운 정보를 얼마나 기록할지 결정하는 게이트, 그리고 갱신된 셀 상태로부터 현재 시점의 은닉 상태(`h_t`)로 얼마나 내보낼지 결정하는 3대 게이트의 올바른 명칭 조합은?",
+    "code": "LSTM 3 Gates: [ 1. 과거 삭제 ] ➔ [ 2. 신규 저장 ] ➔ [ 3. 현재 출력 ]",
+    "options": [
+      "AND 게이트, OR 게이트, XOR 게이트",
+      "망각 게이트(Forget Gate), 입력 게이트(Input Gate), 출력 게이트(Output Gate)",
+      "컨볼루션 게이트, 풀링 게이트, 플래튼 게이트",
+      "쿼리 게이트(Query Gate), 키 게이트(Key Gate), 밸류 게이트(Value Gate)"
+    ],
+    "answer": 1,
+    "explanation": "LSTM은 (1) 과거 셀 상태 C_{t-1}의 보존 비율을 조절하는 망각 게이트(f_t), (2) 현재 후보 정보를 C_t에 반영하는 입력 게이트(i_t), (3) 셀 상태로부터 단기 은닉 상태 h_t를 추출하는 출력 게이트(o_t)의 3대 게이트로 기억을 정교하게 제어합니다."
+  },
+  {
+    "id": 24,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "중급",
+    "question": "LSTM의 망각 게이트(`f_t`), 입력 게이트(`i_t`), 출력 게이트(`o_t`)에서 밸브의 개폐 비율(0: 완전 차단 ~ 1: 완전 통과)을 계산할 때 사용하는 활성화 함수와, 셀에 새로 추가될 후보 기억(`C~_t`)의 값 범위를 `[-1, 1]`로 조절할 때 사용하는 활성화 함수의 올바른 짝은?",
+    "code": "f_t = ____(W_f · [h_{t-1}, x_t] + b_f)   # 0.0 ~ 1.0 개폐율\nC~_t = ____(W_C · [h_{t-1}, x_t] + b_C)  # -1.0 ~ +1.0 후보 기억",
+    "options": [
+      "게이트 개폐: ReLU / 후보 기억: Softmax",
+      "게이트 개폐: tanh / 후보 기억: Sigmoid",
+      "게이트 개폐: Linear / 후보 기억: Step Function",
+      "게이트 개폐: Sigmoid(σ) / 후보 기억: Hyperbolic Tangent(tanh)"
+    ],
+    "answer": 3,
+    "explanation": "정보를 얼마나 통과시킬지(0%~100%) 결정하는 게이트 밸브에는 [0, 1] 범위를 출력하는 시그모이드(Sigmoid, σ)가 사용되며, 실제 더하거나 뺄 후보 기억의 크기와 부호를 표현할 때는 [-1, 1] 범위를 출력하는 하이퍼볼릭 탄젠트(tanh)가 사용됩니다."
+  },
+  {
+    "id": 25,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "중급",
+    "question": "LSTM에서 직전 장기 기억 `C_{t-1}`을 현재 장기 기억 `C_t`로 업데이트하고, 이어서 현재 은닉 상태 `h_t`를 산출하는 두 단계의 핵심 수식으로 가장 올바른 것은? (단, `⊙`는 원소별 곱셈 Hadamard Product이다.)",
+    "code": "- f_t: 망각 게이트, i_t: 입력 게이트, o_t: 출력 게이트\n- C~_t: 후보 셀 상태",
+    "options": [
+      "C_t = f_t ⊙ C_{t-1} + i_t ⊙ C~_t,   h_t = o_t ⊙ tanh(C_t)",
+      "C_t = f_t + i_t,   h_t = o_t + C_t",
+      "C_t = f_t ⊙ i_t ⊙ o_t,   h_t = softmax(C_t)",
+      "C_t = tanh(C_{t-1} + x_t),   h_t = C_t"
+    ],
+    "answer": 0,
+    "explanation": "장기 기억 C_t는 직전 기억 C_{t-1}에 망각 게이트(f_t)를 곱해 남길 정보를 추리고, 여기에 입력 게이트(i_t)와 후보 기억(C~_t)의 곱을 더하여(f_t ⊙ C_{t-1} + i_t ⊙ C~_t) 갱신됩니다. 그 후 C_t에 tanh를 씌우고 출력 게이트(o_t)를 곱해 단기 은닉 상태 h_t = o_t ⊙ tanh(C_t)를 출력합니다."
+  },
+  {
+    "id": 26,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "고급",
+    "question": "동일한 입력 차원(`d_in`)과 동일한 은닉 유닛 수(`h`)를 가질 때, `SimpleRNN` 계층 대비 `LSTM` 계층의 학습 파라미터(가중치 + 편향) 개수는 정확히 몇 배인가?",
+    "code": "SimpleRNN 내부 연산: tanh(W_x x_t + W_h h_{t-1} + b)  --> 1세트\nLSTM 내부 연산     : f_t, i_t, C~_t, o_t               --> ?세트",
+    "options": [
+      "정확히 2배 (2 × [(d_in + h + 1) × h])",
+      "정확히 4배 (4 × [(d_in + h + 1) × h])",
+      "1배로 완전히 동일하다",
+      "10배"
+    ],
+    "answer": 1,
+    "explanation": "LSTM은 내부에 망각 게이트(f_t), 입력 게이트(i_t), 후보 셀 상태(C~_t), 출력 게이트(o_t)의 4가지 독립적인 게이트/변환 연산 세트를 가지고 있으므로, 동일 유닛 수의 SimpleRNN에 비해 파라미터 수가 정확히 4배입니다."
+  },
+  {
+    "id": 27,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "중급",
+    "question": "Keras에서 두 개의 LSTM 계층을 연속으로 깊게 쌓는 Stacked LSTM 모델을 구성할 때, 첫 번째 LSTM 계층이 마지막 시점의 출력 하나만 반환하지 않고 모든 타임스텝(t=1..T)의 은닉 상태 시퀀스 전체를 두 번째 LSTM 계층으로 전달하도록 반드시 설정해야 하는 옵션은?",
+    "code": "model = Sequential([\n    LSTM(64, ____, input_shape=(24, 5)),\n    LSTM(32),\n    Dense(1)\n])",
+    "options": [
+      "return_state=False",
+      "stateful=False",
+      "return_sequences=True",
+      "go_backwards=True"
+    ],
+    "answer": 2,
+    "explanation": "LSTM의 기본값(return_sequences=False)은 마지막 타임스텝의 결과 (Batch, Units) 2D 텐서만 반환합니다. 뒤에 또 다른 RNN/LSTM 계층을 연결하려면 3D 시퀀스 텐서 (Batch, Time_Steps, Units)가 필요하므로 앞단 LSTM에 반드시 return_sequences=True를 지정해야 합니다."
+  },
+  {
+    "id": 28,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "중급",
+    "question": "길이 100일짜리 일별 상품 판매량 시계열 데이터에서 과거 7일치 데이터(`window_size = 7`)를 보고 바로 다음 날(8일째) 판매량 1개를 예측하는 슬라이딩 윈도우(Sliding Window) 데이터셋을 생성할 때, 만들어지는 총 학습 샘플 `(X, y)` 쌍의 개수는?",
+    "code": "for i in range(len(data) - window_size):\n    X.append(data[i : i + window_size])\n    y.append(data[i + window_size])",
+    "options": [
+      "93개",
+      "94개",
+      "100개",
+      "14개"
+    ],
+    "answer": 0,
+    "explanation": "전체 데이터 길이 N=100에서 윈도우 크기 W=7을 빼면 N - W = 100 - 7 = 93개의 (입력 7일, 타깃 1일) 슬라이딩 윈도우 샘플이 생성됩니다. (인덱스 i=0일 때 타깃은 data[7], 마지막 i=92일 때 타깃은 data[99]로 총 93개)"
+  },
+  {
+    "id": 29,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "중급",
+    "question": "시계열 수요 예측 모델을 학습하기 전 훈련 세트(Train)와 검증/테스트 세트(Test)를 분할하고 스케일링할 때, 시계열 예측에서 절대 범해서는 안 되는 '미래 정보 누수(Look-ahead Bias / Data Leakage)'를 방지하는 올바른 실무 원칙은?",
+    "code": "# 시계열 구간: 2024-01-01 ~ 2025-12-31\n# 잘못된 예: train_test_split(X, y, shuffle=True)",
+    "options": [
+      "전체 시계열 데이터를 무작위 셔플(shuffle=True)하여 미래 시점 데이터가 훈련 세트에 골고루 들어가게 한다.",
+      "데이터를 무작위로 섞지 않고(shuffle=False) 시간 순서 기준 과거 구간을 Train, 미래 구간을 Test로 엄격히 분리하며, Scaler의 fit() 또한 오직 과거 Train 구간에만 수행한다.",
+      "2025년 미래 데이터로 모델을 학습시키고 2024년 과거 데이터를 테스트 세트로 평가한다.",
+      "테스트 세트의 최댓값과 최솟값을 미리 구해 훈련 데이터를 정규화한다."
+    ],
+    "answer": 1,
+    "explanation": "시계열 데이터를 무작위로 섞으면(shuffle=True) 내일과 모레의 정답을 보고 어제를 맞히는 심각한 미래 정보 누수(Look-ahead Bias)가 발생해 실전 배포 시 모델이 무너집니다. 반드시 시간축 순서를 보존(Chronological Split)하여 분할하고 전처리 통계량도 과거 Train 데이터에서만 추출해야 합니다."
+  },
+  {
+    "id": 30,
+    "type": "multiple",
+    "category": "2. 순환 신경망 & 시계열 수요 예측",
+    "day": "Ch 05~06",
+    "difficulty": "고급",
+    "question": "순환 신경망에서 기울기 소실은 LSTM으로 완화되지만, 반대로 역전파 기울기가 비정상적으로 커져 가중치가 `NaN`으로 발산하는 '기울기 폭주(Exploding Gradient)'가 발생할 때, 기울기 벡터의 L2 노름이 임계값(`threshold`)을 넘으면 방향은 유지한 채 크기만 강제로 줄여주는 최적화 기법은?",
+    "code": "if ||g||_2 > threshold:\n    g = (threshold / ||g||_2) * g\n# Keras 설정: tf.keras.optimizers.Adam(learning_rate=1e-3, clipnorm=1.0)",
+    "options": [
+      "라벨 스무딩 (Label Smoothing)",
+      "원-핫 인코딩 (One-Hot Encoding)",
+      "기울기 클리핑 (Gradient Clipping)",
+      "데이터 증강 (Data Augmentation)"
+    ],
+    "answer": 2,
+    "explanation": "기울기 클리핑(Gradient Clipping, clipnorm 또는 clipvalue)은 BPTT 역전파 중 기울기 벡터의 크기가 지정한 임계치를 초과할 때 벡터의 방향은 보존하면서 노름(크기)만 임계치로 스케일링하여 RNN/LSTM의 가중치 발산을 막아주는 표준 안정화 기법입니다."
+  },
+  {
+    "id": 31,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "초급",
+    "question": "의사결정 트리(Decision Tree, CART 알고리즘)에서 특정 노드에 속한 샘플들의 클래스 혼합 정도(불순도)를 측정하는 지니 불순도(Gini Impurity) 공식이 `Gini = 1 - Σ(p_k)^2` 일 때, 한 노드에 정상 샘플 50개와 불량 샘플 50개가 정확히 반반(50:50) 섞여 있는 경우와 불량 샘플만 100개(0:100) 모여 있는 경우의 지니 불순도 값은?",
+    "code": "Gini(D) = 1 - (p_0^2 + p_1^2)",
+    "options": [
+      "두 경우 모두 Gini = 0.25로 동일하다.",
+      "50:50 혼합 시 Gini = 0.0, 0:100 순수 노드 시 Gini = 1.0",
+      "50:50 혼합 시 Gini = 0.5 (최대 불순도), 0:100 순수 노드 시 Gini = 0.0 (완전 순수)",
+      "50:50 혼합 시 Gini = 1.0, 0:100 순수 노드 시 Gini = 0.5"
+    ],
+    "answer": 2,
+    "explanation": "이진 분류에서 두 클래스가 50:50(p_0=0.5, p_1=0.5)으로 섞여 있으면 Gini = 1 - (0.25 + 0.25) = 0.5로 불순도가 최대가 되며, 단일 클래스만 100%(p_1=1.0) 존재하면 Gini = 1 - (0 + 1) = 0.0이 되어 완전히 순수한 리프 노드가 됩니다."
+  },
+  {
+    "id": 32,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "중급",
+    "question": "의사결정 트리가 각 분기점에서 어떤 특성(Feature)과 어떤 임계값(Threshold)으로 노드를 분할할지 결정할 때 사용하는 '정보 이득(Information Gain)'의 정의로 가장 올바른 것은?",
+    "code": "IG(D_parent, Split) = I(D_parent) - [ (N_left / N) * I(D_left) + (N_right / N) * I(D_right) ]",
+    "options": [
+      "부모 노드의 샘플 수에서 자식 노드의 샘플 수를 뺀 값이다.",
+      "자식 노드들의 불순도 합이 부모 노드보다 커지도록 유도하는 지표이다.",
+      "항상 알파벳 순서가 가장 빠른 특성을 선택하는 기준이다.",
+      "부모 노드의 불순도(엔트로피 또는 지니)에서 분할된 좌·우 자식 노드 불순도의 가중 평균을 뺀 값으로, 이 정보 이득이 가장 큰(즉, 불순도를 가장 많이 감소시키는) 특성과 분할점을 선택한다."
+    ],
+    "answer": 3,
+    "explanation": "결정 트리는 분할 전 부모 노드의 불순도 대비 분할 후 자식 노드들의 가중 평균 불순도가 얼마나 줄어들었는지를 나타내는 정보 이득(Information Gain)을 계산하여, 불순도 감소량이 최대가 되는 최적의 질문(특성 및 기준값)을 탐욕적(Greedy)으로 선택합니다."
+  },
+  {
+    "id": 33,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "초급",
+    "question": "의사결정 트리에 아무런 제약 조건을 주지 않고 리프 노드의 불순도가 0이 될 때까지 끝까지 분할할 경우 발생하는 문제점과, 이를 방지하기 위한 사전 가지치기(Pre-pruning) 하이퍼파라미터로 올바른 것은?",
+    "code": "dt = DecisionTreeClassifier(max_depth=____, min_samples_split=____, min_samples_leaf=____)",
+    "options": [
+      "트리 깊이가 무한정 깊어져 훈련 데이터의 노이즈와 이상치까지 모두 암기하는 심각한 과적합(Overfitting)이 발생하므로, max_depth(최대 깊이), min_samples_split, min_samples_leaf 등으로 트리 성장을 제한한다.",
+      "모델이 훈련 데이터를 전혀 학습하지 못하는 과소적합이 발생하므로 max_depth=None으로 설정한다.",
+      "결정 트리는 선형 모델이므로 깊이가 깊어질수록 분산(Variance)이 0으로 줄어든다.",
+      "가지치기를 수행하면 모델을 If-Else 규칙으로 해석할 수 없게 된다."
+    ],
+    "answer": 0,
+    "explanation": "제약 없는 결정 트리는 샘플 1개짜리 리프 노드까지 쪼개어 훈련 정확도는 100%가 되지만 일반화 성능이 급락하는 고분산 과적합에 빠집니다. 따라서 max_depth, min_samples_leaf 등의 사전 가지치기 파라미터로 트리의 복잡도를 제어해야 합니다."
+  },
+  {
+    "id": 34,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "중급",
+    "question": "단일 의사결정 트리의 높은 분산(과적합) 문제를 해결하기 위해 등장한 랜덤 포레스트(Random Forest)가 사용하는 '배깅(Bagging = Bootstrap Aggregating)'과 '특성 무작위 샘플링'의 결합 원리로 가장 올바른 것은?",
+    "code": "rf = RandomForestClassifier(n_estimators=100, max_features='sqrt', bootstrap=True)",
+    "options": [
+      "단 하나의 거대한 트리만 학습시킨 뒤 그 트리를 100번 복사하여 사용한다.",
+      "원본 데이터에서 복원 추출(Bootstrap)로 조금씩 다른 샘플 부분집합을 만들고, 각 노드 분할 시에도 전체 특성 중 일부(예: sqrt(p)개)만 무작위 후보로 제한하여 서로 상관성이 낮은 다양한 트리를 병렬 학습시킨 뒤 다수결/평균으로 결합한다.",
+      "이전 트리가 틀린 오차(잔차)를 다음 트리가 이어받아 순차적(직렬)으로 학습한다.",
+      "비복원 추출로 데이터를 100등분 하여 각 트리가 전체 데이터의 1%만 보게 만든다."
+    ],
+    "answer": 1,
+    "explanation": "랜덤 포레스트는 (1) 데이터의 부트스트랩 복원 추출과 (2) 노드 분할 시 후보 특성의 무작위 부분집합 선택(max_features)이라는 두 가지 무작위성을 주입해 개별 트리들의 상관관계를 낮추고(De-correlation), 앙상블 평균을 통해 예측 분산(Variance)을 획기적으로 줄입니다."
+  },
+  {
+    "id": 35,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "고급",
+    "question": "랜덤 포레스트의 부트스트랩(복원 추출) 과정에서 N개의 샘플 중 한 번도 뽑히지 않고 남는 약 36.8%(`(1 - 1/N)^N ≈ 1/e`)의 데이터를 일컫는 용어와, 이를 별도의 검증 세트 분할 없이 모델의 일반화 성능 평가에 활용하는 기능은?",
+    "code": "lim_{N->∞} (1 - 1/N)^N = e^(-1) ≈ 0.3678 (약 36.8%)\nrf = RandomForestClassifier(n_estimators=100, oob_score=True)",
+    "options": [
+      "Support Vectors — 마진 최대화 검증",
+      "Centroid Samples — K-평균 클러스터링 검증",
+      "Anchor Boxes — 객체 탐지 검증",
+      "Out-of-Bag (OOB) 샘플 — OOB 검증 점수 (oob_score_)"
+    ],
+    "answer": 3,
+    "explanation": "부트스트랩 복원 추출 시 확률적으로 약 36.8%의 샘플이 각 트리의 훈련에서 제외되는데 이를 OOB(Out-of-Bag) 샘플이라 합니다. oob_score=True를 설정하면 각 샘플이 훈련에 참여하지 않은 트리들만 모아 예측을 평가하므로 교차 검증과 유사한 일반화 점수를 무료로 얻을 수 있습니다."
+  },
+  {
+    "id": 36,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "중급",
+    "question": "앙상블 기법의 양대 산맥인 배깅(Bagging: Random Forest)과 부스팅(Boosting: Gradient Boosting, XGBoost, LightGBM)을 비교한 설명으로 가장 정확한 것은?",
+    "code": "배깅(Bagging)   : Tree_1 || Tree_2 || ... || Tree_B  (독립 병렬 학습)\n부스팅(Boosting): Tree_1 -> Tree_2 -> ... -> Tree_M  (순차 잔차/그래디언트 학습)",
+    "options": [
+      "배깅은 독립적인 트리들을 병렬로 학습시켜 평균냄으로써 주로 분산(Variance, 과적합)을 줄이는 데 강점이 있고, 부스팅은 이전 모델이 예측하지 못한 잔차(Residual/음의 그래디언트)를 다음 약한 학습기가 순차적으로 보완하여 편향(Bias, 과소적합)을 줄이고 예측 정밀도를 극대화한다.",
+      "배깅은 이전 트리의 오차를 보완하며 직렬로 학습해 편향(Bias)을 줄이고, 부스팅은 독립적인 트리를 병렬로 학습해 분산(Variance)을 줄인다.",
+      "배깅과 부스팅 모두 신경망의 역전파만 사용하며 의사결정 트리는 사용할 수 없다.",
+      "부스팅은 첫 번째 트리의 오차가 0이어도 무조건 오차를 키우는 방향으로 다음 트리를 학습시킨다."
+    ],
+    "answer": 0,
+    "explanation": "배깅(Random Forest)은 고분산 모델(깊은 트리) 여러 개를 독립 병렬로 학습한 뒤 결합하여 분산(Variance)을 낮추고, 부스팅(XGBoost/LightGBM)은 약한 학습기(얕은 트리)들이 이전 단계의 잔차(음의 기울기)를 순차적으로 줄여나가므로 편향(Bias)을 강력하게 감소시킵니다."
+  },
+  {
+    "id": 37,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "고급",
+    "question": "전통적인 그래디언트 부스팅(GBM)이 손실 함수의 1차 미분(Gradient, `g_i`)만 사용하는 것과 달리, XGBoost(eXtreme Gradient Boosting)가 빠르고 정확한 최적 분할점 탐색과 리프 가중치 계산을 위해 목적 함수에 도입한 수학적 기법과 과적합 방지 장치는?",
+    "code": "L^(t) ≈ Σ [ l(y_i, y^hat_{i}^(t-1)) + g_i f_t(x_i) + (1/2) h_i f_t^2(x_i) ] + γT + (1/2)λ Σ w_j^2",
+    "options": [
+      "미분을 전혀 사용하지 않고 무작위 난수로만 트리를 분할한다.",
+      "손실 함수를 2차 테일러 전개(Second-order Taylor Expansion)하여 1차 미분(g_i, Gradient)과 2차 미분(h_i, Hessian: 곡률)을 동시에 활용하고, 목적 함수에 리프 노드 개수(γT)와 리프 가중치의 L1/L2 정규화 항(α, λ)을 명시적으로 포함시켰다.",
+      "모든 특성을 푸리에 변환(FFT)하여 주파수 영역에서만 트리를 만든다.",
+      "트리 깊이를 무조건 100 이상으로 강제하여 정규화 항을 제거했다."
+    ],
+    "answer": 1,
+    "explanation": "XGBoost의 핵심 혁신은 (1) 2차 테일러 근사를 통해 방향(1차 도함수 g_i)뿐만 아니라 곡률(2차 도함수 헤시안 h_i)까지 반영해 정교한 뉴턴-랩슨 스텝으로 트리를 학습하는 것과, (2) 트리 복잡도 페널티(γT + λ||w||^2)를 목적 함수에 내장하여 자체적으로 과적합을 억제하는 것입니다."
+  },
+  {
+    "id": 38,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "중급",
+    "question": "XGBoost 모델을 실무 정형 데이터에 적용할 때 사용하는 주요 하이퍼파라미터의 역할 설명으로 옳지 않은 것은?",
+    "code": "model = xgb.XGBClassifier(\n    n_estimators=500, learning_rate=0.05, max_depth=6,\n    subsample=0.8, colsample_bytree=0.8, reg_lambda=1.0\n)",
+    "options": [
+      "learning_rate(eta): 각 부스팅 트리가 최종 예측에 기여하는 비중을 축소(Shrinkage)하여 과적합을 막고 안정적인 수렴을 돕는다.",
+      "subsample & colsample_bytree: 랜덤 포레스트처럼 각 트리 생성 시 샘플(행)과 특성(열)의 80%만 무작위 추출하여 과적합을 억제한다.",
+      "max_depth: 이미지의 컬러 채널 수를 지정하는 파라미터로, 흑백은 1, 컬러는 3만 입력할 수 있다.",
+      "reg_lambda & reg_alpha: 리프 노드 가중치에 각각 L2 규제와 L1 규제를 가해 가중치 폭주를 방지한다."
+    ],
+    "answer": 2,
+    "explanation": "max_depth는 개별 의사결정 트리의 최대 깊이를 제한하는 하이퍼파라미터입니다. 값이 너무 크면 복잡한 교호작용까지 학습해 과적합되기 쉬우므로 보통 부스팅에서는 3~8 사이의 얕은 깊이를 주로 사용합니다."
+  },
+  {
+    "id": 39,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "중급",
+    "question": "XGBoost의 기본 트리 성장 방식인 '수평/깊이 중심 분할(Level-wise / Depth-wise)'과 대비되는 LightGBM의 '수직/리프 중심 분할(Leaf-wise / Best-first)' 방식의 특징과 주의점으로 가장 올바른 것은?",
+    "code": "XGBoost : 같은 깊이(Level)의 모든 노드를 균형 있게 동시에 분할\nLightGBM: 현재 리프 노드 중 손실 감소량(Delta Loss)이 가장 큰 리프 하나를 골라 수직 분할",
+    "options": [
+      "LightGBM의 Leaf-wise 방식은 트리의 균형을 맞추지 않고 최대 손실 감소를 주는 리프를 집중 분할하므로 적은 리프 수로도 더 낮은 오차와 빠른 학습 속도를 달성하지만, 소규모 데이터에서는 한쪽이 깊어져 과적합 위험이 크므로 num_leaves와 max_depth 제어가 필수적이다.",
+      "LightGBM의 Leaf-wise 방식은 언제나 좌우 대칭인 완전 이진 트리만 생성한다.",
+      "XGBoost의 Level-wise 방식이 LightGBM보다 메모리 사용량이 10배 적고 속도가 100배 빠르다.",
+      "Leaf-wise 방식은 분류 문제에는 쓸 수 없고 오직 클러스터링에만 사용된다."
+    ],
+    "answer": 0,
+    "explanation": "LightGBM은 손실 감소량이 가장 큰 리프 노드를 우선 분할하는 Leaf-wise 전략을 사용하여 수렴 속도와 정확도가 매우 뛰어납니다. 다만 데이터가 적을 때 트리가 한쪽으로 깊게 자라 과적합될 수 있으므로 num_leaves를 2^(max_depth)보다 작게 설정해 제어해야 합니다."
+  },
+  {
+    "id": 40,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "고급",
+    "question": "수백만 건 이상의 대용량 데이터를 초고속으로 처리하기 위해 LightGBM이 도입한 두 가지 핵심 알고리즘인 `GOSS(Gradient-based One-Side Sampling)`와 `EFB(Exclusive Feature Bundling)`의 원리를 바르게 짝지은 것은?",
+    "code": "LightGBM 초고속 엔진 = Histogram-based + GOSS (행 압축) + EFB (열 압축)",
+    "options": [
+      "GOSS: 모든 데이터를 삭제함 / EFB: 모든 특성을 제곱하여 열 수를 10배로 늘림",
+      "GOSS: 기울기(오차)가 큰 샘플은 모두 유지하고 기울기가 작은(이미 잘 학습된) 샘플은 일부만 무작위 샘플링 후 가중치를 보정하여 데이터 행(Row) 스캔량을 줄임 / EFB: 동시에 0이 아닌 값을 갖는 경우가 거의 없는 상호 배타적 희소 특성(Sparse Features)들을 하나의 번들로 묶어 특성 열(Column) 수를 줄임",
+      "GOSS: 이미지를 회전시킴 / EFB: 음성 신호를 텍스트로 변환함",
+      "GOSS: 기울기가 큰 어려운 샘플을 모두 버리고 쉬운 샘플만 학습함 / EFB: 연속형 변수를 문자열로 바꿈"
+    ],
+    "answer": 1,
+    "explanation": "LightGBM은 이미 잘 맞히고 있는 작은 그래디언트 샘플은 일부만 추출하고 큰 그래디언트 샘플에 집중하는 GOSS로 샘플 수를 줄이며, 원-핫 인코딩 등으로 생긴 상호 배타적 희소 피처들을 하나로 묶는 EFB로 피처 수를 줄여 정보 손실 없이 압도적인 속도를 달성합니다."
+  },
+  {
+    "id": 41,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "초급",
+    "question": "신경망, SVM, KNN, 선형 회귀 모델은 특성들의 단위(예: 연봉 50,000,000원 vs 나이 30세)가 다르면 반드시 `StandardScaler`나 `MinMaxScaler`로 스케일링을 해야 하지만, 의사결정 트리·랜덤 포레스트·XGBoost·LightGBM 등 트리 기반 모델이 특성 단조 스케일링에 영향을 받지 않는(Scale-Invariant) 이유는?",
+    "code": "노드 분할 조건 예: [연봉 <= 45,000,000]  <===>  [연봉(만원) <= 4,500]  <===>  [Z-score(연봉) <= -0.32]",
+    "options": [
+      "트리 모델은 수치형 변수를 입력받으면 무조건 전부 0으로 바꿔버리기 때문이다.",
+      "트리 모델 내부에 자동으로 StandardScaler가 10번 실행되기 때문이다.",
+      "트리 모델은 유클리디안 거리나 기울기 내적을 계산하지 않고, 각 특성의 대소 비교(Threshold 부등식: x_j ≤ t)를 통해 정렬 순서(Order) 기준으로만 데이터를 좌우 분할하므로 단위를 바꾸거나 정규화해도 분할 지점과 트리 구조가 완전히 동일하기 때문이다.",
+      "트리 모델은 오직 범주형 문자열만 입력받을 수 있기 때문이다."
+    ],
+    "answer": 2,
+    "explanation": "결정 트리는 각 특성 축에서 순서를 정렬한 뒤 불순도를 가장 많이 낮추는 분할 임계점(x_j ≤ t)을 찾습니다. 따라서 특성을 상수로 나누거나 평균을 빼는 단조 변환(Monotonic Transformation)을 수행해도 샘플들의 상대적 순서가 바뀌지 않으므로 분할 결과에 전혀 영향이 없습니다."
+  },
+  {
+    "id": 42,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "중급",
+    "question": "학습이 완료된 트리 앙상블 모델(`RandomForest`, `XGBoost` 등)에서 `model.feature_importances_` 속성을 조회했을 때 반환되는 값의 의미와 실무 활용법으로 가장 올바른 것은?",
+    "code": "importances = pd.Series(rf.feature_importances_, index=feature_names).sort_values(ascending=False)",
+    "options": [
+      "항상 모든 특성에 동일한 값(1/p)을 부여하는 균등 분포 배열이다.",
+      "각 특성의 평균값과 표준편차를 그대로 출력한 기초 통계량이다.",
+      "특성이 목표 변수에 양(+)의 영향을 주는지 음(-)의 영향을 주는지 부호(-1 ~ +1)를 알려주는 상관계수이다.",
+      "전체 트리에서 각 특성이 노드 분할에 사용되면서 불순도(지니/엔트로피) 또는 손실(Gain)을 얼마나 감소시켰는지를 집계하여 정규화(합=1.0)한 전역적 특성 중요도로, 핵심 예측 인자 선별 및 피처 선택에 활용된다."
+    ],
+    "answer": 3,
+    "explanation": "feature_importances_(MDI: Mean Decrease in Impurity 또는 Gain)는 모든 트리의 분할 노드에서 해당 특성이 기여한 불순도/손실 감소량의 가중 합을 계산해 어떤 변수가 모델 예측에 가장 크게 기여했는지 정량적으로 보여줍니다. 단, 방향(양/음)은 알려주지 않으므로 방향성 해석에는 SHAP 등을 함께 사용합니다."
+  },
+  {
+    "id": 43,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "고급",
+    "question": "기본 불순도 기반 특성 중요도(`feature_importances_`, MDI)가 카디널리티(고유값 개수)가 높은 연속형 변수에 부당하게 높은 점수를 주는 편향 문제를 극복하기 위해, 검증 데이터에서 특정 특성 열 하나만 무작위로 섞은(Shuffle) 뒤 모델 성능(Accuracy/AUC)이 얼마나 하락하는지로 중요도를 측정하는 모델 불문(Model-Agnostic) 기법은?",
+    "code": "from sklearn.inspection import permutation_importance\nresult = permutation_importance(model, X_val, y_val, n_repeats=10, random_state=42)",
+    "options": [
+      "주성분 분석 (PCA)",
+      "순열 중요도 (Permutation Importance)",
+      "배치 정규화 (Batch Normalization)",
+      "그리드 서치 (Grid Search)"
+    ],
+    "answer": 1,
+    "explanation": "순열 중요도(Permutation Importance)는 검증 세트에서 특정 피처의 값들을 무작위로 섞어 해당 피처와 타깃 간의 관계를 끊었을 때 모델의 검증 점수가 얼마나 급락하는지를 측정합니다. 정말 중요한 피처일수록 섞였을 때 성능이 크게 떨어지며, 훈련 데이터 과적합 편향 없이 모든 모델에 적용 가능합니다."
+  },
+  {
+    "id": 44,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "고급",
+    "question": "설명 가능한 AI(XAI)의 대표 기법인 SHAP(SHapley Additive exPlanations)이 협력 게임 이론의 섀플리 값(Shapley Value)을 기반으로 개별 샘플 `x`의 예측값을 설명하는 원리로 가장 올바른 것은?",
+    "code": "f(x) = E[f(X)] + φ_1 + φ_2 + ... + φ_p\n- E[f(X)] : 전체 데이터의 평균 기본 예측값 (Base Value)\n- φ_j     : j번째 특성의 SHAP 기여도 값",
+    "options": [
+      "항상 모든 특성의 기여도를 양수(+)로만 출력하여 합이 100이 되게 만든다.",
+      "모델 전체에서 가장 중요한 특성 단 1개의 이름만 출력하고 개별 샘플에 대한 설명은 불가능하다.",
+      "특성들의 모든 가능한 부분집합(Coalition) 조합에 특정 특성 j가 합류했을 때 발생하는 한계 기여도(Marginal Contribution)의 가중 평균을 구하여, 전체 평균 예측값(Base Value)으로부터 개별 샘플의 최종 예측값까지 각 특성이 값을 얼마나 밀어 올렸는지(+) 혹은 끌어내렸는지(-)를 공정하고 가법적(Additive)으로 분해해 준다.",
+      "트리의 깊이를 1로 줄여서 모델을 강제로 단순화시키는 압축 알고리즘이다."
+    ],
+    "answer": 2,
+    "explanation": "SHAP은 노벨경제학상 수상 이론인 섀플리 값을 머신러닝에 도입하여, 기본 예측값(Base Value)에 각 특성의 방향성 있는 기여도(φ_j, 양수면 상승 요인, 음수면 하락 요인)를 모두 더하면 정확히 해당 샘플의 모델 예측값 f(x)가 되는 지역적·전역적 설명의 일관성(Local Accuracy & Consistency)을 보장합니다."
+  },
+  {
+    "id": 45,
+    "type": "multiple",
+    "category": "3. 설명 가능한 머신러닝 & 앙상블 XAI",
+    "day": "Ch 07~10",
+    "difficulty": "초급",
+    "question": "사이킷런(`sklearn.tree`)에서 학습된 의사결정 트리가 어떤 특성과 기준값으로 분기하여 최종 결론에 도달했는지 현업 담당자가 즉시 읽을 수 있도록 `If-Else` 텍스트 규칙 형태로 출력해 주는 내장 함수는?",
+    "code": "from sklearn.tree import DecisionTreeClassifier, ____\nrules = ____(dt_model, feature_names=iris.feature_names)\nprint(rules)",
+    "options": [
+      "standard_scale",
+      "train_test_split",
+      "confusion_matrix",
+      "export_text"
+    ],
+    "answer": 3,
+    "explanation": "sklearn.tree.export_text(decision_tree, feature_names=...) 함수는 학습된 결정 트리의 모든 분기 조건(예: |--- petal width (cm) <= 0.80)과 리프 노드의 예측 클래스를 직관적인 계층형 텍스트 트리로 추출해 주는 대표적인 화이트박스 XAI 도구입니다."
+  },
+  {
+    "id": 46,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "초급",
+    "question": "모델 학습 과정에서 훈련 데이터에 대한 손실(`train_loss`)은 0에 가깝게 계속 줄어들고 정확도는 99.9%에 달하지만, 처음 보는 검증/테스트 데이터에 대한 손실(`val_loss`)은 어느 시점부터 오히려 급격히 치솟으며 일반화 성능이 무너지는 현상은?",
+    "code": "Epoch 50: train_loss = 0.0021 (acc: 99.8%) | val_loss = 1.4820 (val_acc: 68.5%)",
+    "options": [
+      "과소적합 (Underfitting — High Bias)",
+      "모드 붕괴 (Mode Collapse)",
+      "기울기 소실 (Vanishing Gradient)",
+      "과적합 (Overfitting — High Variance)"
+    ],
+    "answer": 3,
+    "explanation": "과적합(Overfitting)은 모델의 용량(자유도)이 데이터 대비 지나치게 크거나 학습을 과도하게 반복하여, 데이터의 보편적 법칙이 아니라 훈련 세트에 섞인 우연한 노이즈와 지엽적 패턴까지 통째로 암기(Memorization)해버려 새로운 데이터(검증/테스트셋)에서 성능이 크게 떨어지는 현상입니다."
+  },
+  {
+    "id": 47,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "초급",
+    "question": "복잡한 비선형 사인 곡선(`y = sin(x)`) 형태의 데이터에 1차 직선 모델(`y = wx + b`)이나 뉴런이 극소수인 얕은 신경망을 적용했을 때, 훈련 오차(`train_loss`)와 검증 오차(`val_loss`)가 모두 높게 머물며 데이터의 기본 추세조차 학습하지 못하는 현상과 해결책으로 가장 적절한 것은?",
+    "code": "Train R^2 = 0.15, Validation R^2 = 0.12 (훈련/검증 모두 성능 불량)",
+    "options": [
+      "과소적합(Underfitting)이므로 은닉층과 뉴런 수를 늘려 모델 용량(Capacity)을 증설하거나, 다항/파생 특성을 추가하고, 과도한 정규화(L1/L2, Dropout)를 완화한다.",
+      "과적합(Overfitting)이므로 드롭아웃 비율을 0.9로 높이고 규제를 강화한다.",
+      "데이터가 너무 많아서 생기는 현상이므로 훈련 데이터를 90% 삭제한다.",
+      "조기 종료(Early Stopping)의 patience를 0으로 설정하여 1 에포크 만에 학습을 중단한다."
+    ],
+    "answer": 0,
+    "explanation": "과소적합(Underfitting)은 모델이 너무 단순(높은 편향, High Bias)하여 데이터의 내재된 비선형 구조를 담아내지 못하는 상태입니다. 따라서 층과 유닛 수를 늘려 표현력(Capacity)을 키우거나 비선형 피처를 추가하고 규제 강도를 낮추어야 합니다."
+  },
+  {
+    "id": 48,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "중급",
+    "question": "기대 예측 오차를 수학적으로 분해한 '편향-분산 트레이드오프(Bias-Variance Tradeoff)' 수식 `E[(y - f^hat(x))^2] = Bias^2 + Variance + σ^2` 에서 모델 복잡도(예: 다항 회귀 차수 d)가 증가할 때 편향과 분산의 변화 양상으로 가장 올바른 것은?",
+    "code": "총 기대 오차 = 편향^2(Bias^2) + 분산(Variance) + 축소 불가능한 본질적 잡음(Irreducible Error, σ^2)",
+    "options": [
+      "모델이 복잡해질수록 편향과 분산이 동시에 0으로 수렴한다.",
+      "모델이 복잡해질수록 편향(Bias, 정답과의 평균적 거리)은 감소하지만, 훈련 데이터의 작은 변동에 모델이 민감하게 출렁이는 분산(Variance)은 증가하므로, 두 오차의 합이 최소가 되는 최적 복잡도(Sweet Spot)를 찾아야 한다.",
+      "모델이 단순할수록 분산이 무한대가 되고 편향은 0이 된다.",
+      "드롭아웃을 적용하면 본질적 잡음(σ^2)이 음수(-)가 된다."
+    ],
+    "answer": 1,
+    "explanation": "단순한 모델은 표현력이 부족해 편향(Bias, 과소적합)이 크고 분산이 작습니다. 반대로 너무 복잡한 모델은 훈련 데이터에 완벽히 밀착해 편향은 작아지지만 데이터가 조금만 바뀌어도 예측이 크게 달라지는 분산(Variance, 과적합)이 급증합니다. 최적의 모델은 Bias^2 + Variance가 최소가 되는 지점입니다."
+  },
+  {
+    "id": 49,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "초급",
+    "question": "딥러닝의 대표적인 정규화(Regularization) 백신인 `Dropout(rate=0.3)` 계층이 훈련(Training) 단계에서 과적합을 방지하는 핵심 작동 원리는?",
+    "code": "model = Sequential([\n    Dense(256, activation='relu'),\n    Dropout(0.3),\n    Dense(10, activation='softmax')\n])",
+    "options": [
+      "훈련 데이터의 하위 30% 행(Row)을 디스크에서 영구 삭제한다.",
+      "가중치 중 가장 작은 30%를 골라 값을 100배로 키워준다.",
+      "매 훈련 미니배치(순전파/역전파)마다 은닉층 뉴런 중 30%를 무작위로 비활성화(출력을 0으로 마스킹)하여, 특정 뉴런에 대한 동조화(Co-adaptation) 의존을 깨뜨리고 수많은 서로 다른 부분 신경망을 앙상블(Ensemble) 학습하는 효과를 낸다.",
+      "학습률(Learning Rate)을 매 에포크마다 30%씩 증가시킨다."
+    ],
+    "answer": 2,
+    "explanation": "드롭아웃(Dropout)은 훈련 시 매 스텝마다 확률 p(예: 0.3)로 뉴런을 무작위로 꺼버림으로써 특정 소수 뉴런이 예측을 독점하거나 서로 강하게 동조화(Co-adaptation)되는 것을 막고, 기하급수적으로 많은 서브 네트워크들의 배깅 앙상블 효과를 달성합니다."
+  },
+  {
+    "id": 50,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "고급",
+    "question": "Keras 등 현대 딥러닝 프레임워크가 채택한 '역 드롭아웃(Inverted Dropout)'에서 훈련(`training=True`) 시와 실전 평가/추론(`training=False`, `model.evaluate()` / `model.predict()`) 시의 동작 차이로 가장 정확한 것은?",
+    "code": "# 훈련 시(training=True, rate=p): 생존 확률 (1-p)로 마스킹 후 1/(1-p) 배 스케일 업!\n# 추론 시(training=False)       : ?",
+    "options": [
+      "훈련 시 살아남은 뉴런의 출력값을 `1 / (1 - p)`로 미리 나누어 기댓값 크기를 보정해 두며, 추론(`training=False`) 시에는 드롭아웃을 완전히 끄고 모든 뉴런(100%)을 그대로 활성화하여 결정론적(Deterministic)이고 안정적인 예측을 수행한다.",
+      "추론 시에도 매번 무작위로 30%의 뉴런을 끄기 때문에 같은 입력을 넣어도 실행할 때마다 예측 결과가 달라진다.",
+      "추론 시에는 모든 뉴런의 출력을 0으로 만들어 아무 값도 출력하지 않는다.",
+      "훈련 시에는 드롭아웃이 꺼져 있고 오직 테스트 추론 시에만 뉴런을 제거한다."
+    ],
+    "answer": 0,
+    "explanation": "실전 서비스(추론) 시에는 모든 뉴런의 지식을 온전히 활용하고 일관된 출력을 내야 하므로 드롭아웃이 비활성화됩니다. 이때 훈련 시(1-p 비율만 활성)와 추론 시(100% 활성)의 출력 총합 기댓값 스케일을 일치시키기 위해, 훈련 단계에서 생존 뉴런 출력을 1/(1-p)로 미리 증폭해 두는 기법이 Inverted Dropout입니다."
+  },
+  {
+    "id": 51,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "중급",
+    "question": "손실 함수에 가중치 크기에 대한 페널티 항을 추가하는 가중치 규제(Weight Regularization) 중, 불필요한 특성의 가중치를 정확히 `0`으로 만들어 자동 특성 선택(Feature Selection / 희소성 Sparsity) 효과를 내는 규제와, 가중치 제곱합을 억제해 전체 가중치를 고르게 작고 부드럽게 유지하는(Weight Decay) 규제를 순서대로 바르게 짝지은 것은?",
+    "code": "규제 A: Loss_total = Loss_data + λ Σ |w_i|\n규제 B: Loss_total = Loss_data + λ Σ (w_i)^2",
+    "options": [
+      "규제 A: L2 규제 (Ridge) / 규제 B: L1 규제 (Lasso)",
+      "규제 A: L1 규제 (Lasso) / 규제 B: L2 규제 (Ridge)",
+      "규제 A: 드롭아웃 (Dropout) / 규제 B: 맥스풀링 (MaxPooling)",
+      "규제 A: 소프트맥스 (Softmax) / 규제 B: 배치 정규화 (BatchNorm)"
+    ],
+    "answer": 1,
+    "explanation": "L1 규제(Lasso, Σ|w_i|)는 미분 시 상수 부호(±λ)로 작용하여 중요도가 낮은 가중치를 정확히 0으로 수렴시켜 희소 모델(Sparse Model)을 만듭니다. 반면 L2 규제(Ridge, Σw_i^2)는 가중치 크기에 비례(2λw_i)하여 큰 가중치를 강하게 깎아내려 모든 특성을 골고루 작게 유지합니다."
+  },
+  {
+    "id": 52,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "초급",
+    "question": "수백 에포크 동안 신경망을 학습시킬 때 검증 손실(`val_loss`)이 더 이상 개선되지 않고 반등(과적합 시작)하려는 징후를 감지하면 지정한 인내 횟수만큼 기다렸다가 학습을 자동으로 멈추어 시간 낭비와 과적합을 동시에 막아주는 기법은?",
+    "code": "val_loss 추이: 0.45 -> 0.32 -> 0.28 (최적!) -> 0.29 -> 0.31 -> 0.35 [학습 자동 종료!]",
+    "options": [
+      "데이터 정규화 (Data Normalization)",
+      "원-핫 인코딩 (One-Hot Encoding)",
+      "조기 종료 (Early Stopping)",
+      "전이 학습 (Transfer Learning)"
+    ],
+    "answer": 2,
+    "explanation": "조기 종료(Early Stopping)는 매 에포크마다 검증 세트의 성능(주로 val_loss)을 모니터링하다가 일정 에포크(patience) 동안 개선이 없으면 학습을 즉시 중단하여 과적합 영역으로 진입하는 것을 차단하는 가장 실용적인 정규화 기법입니다."
+  },
+  {
+    "id": 53,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "중급",
+    "question": "다음 Keras `EarlyStopping` 설정 코드에서 각 인자(`monitor`, `patience=5`, `restore_best_weights=True`)가 동작하는 방식으로 가장 정확한 것은?",
+    "code": "early_stop = tf.keras.callbacks.EarlyStopping(\n    monitor='val_loss',\n    patience=5,\n    restore_best_weights=True\n)",
+    "options": [
+      "훈련 손실(train_loss)만 감시하며 무조건 5 에포크에 학습을 종료한다.",
+      "val_loss가 5.0 이상일 때만 작동하고 5.0 미만이면 절대 멈추지 않는다.",
+      "restore_best_weights=True로 설정하면 가중치를 모두 난수로 초기화해 버린다.",
+      "검증 손실(val_loss)이 최저점을 기록한 에포크(예: 12 에포크) 이후 5 에포크 연속으로 개선되지 않으면(17 에포크 시점) 학습을 멈추고, 모델의 가중치를 마지막 17 에포크가 아닌 검증 손실이 가장 낮았던 12 에포크의 최적 가중치로 자동 복원(Rollback)한다."
+    ],
+    "answer": 3,
+    "explanation": "patience=5는 최고 기록 경신 후 5번의 에포크 동안 개선이 없을 때 멈추라는 뜻입니다. 이때 멈춘 시점(최적 에포크 + 5)의 가중치는 이미 과적합이 진행된 상태이므로, restore_best_weights=True를 반드시 켜서 최고 성능 시점의 가중치로 되돌려야 합니다."
+  },
+  {
+    "id": 54,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "중급",
+    "question": "`EarlyStopping`에서 `restore_best_weights` 옵션의 기본값은 `False`이다. 만약 이 옵션을 명시적으로 `True`로 켜지 않고 기본값(`False`)으로 둔 채 조기 종료가 발동되었을 때 모델에 남아 있는 가중치 상태는?",
+    "code": "es = EarlyStopping(monitor='val_loss', patience=10)  # restore_best_weights 미지정(기본 False)",
+    "options": [
+      "검증 손실이 가장 낮았던 10 에포크 전의 최적 가중치가 자동으로 복원되어 있다.",
+      "학습이 멈춘 마지막 에포크(즉, 최적 시점으로부터 10 에포크 동안 검증 손실이 악화된 과적합 상태)의 가중치가 그대로 남아 있어 실전 예측 성능이 떨어진다.",
+      "첫 번째 에포크(Epoch 1)의 가중치로 되돌아간다.",
+      "모델 파일이 디스크에서 자동 삭제된다."
+    ],
+    "answer": 1,
+    "explanation": "Keras EarlyStopping의 restore_best_weights 기본값은 False이므로, 이를 True로 지정하지 않으면 patience 기간 동안 과적합이 진행된 마지막 에포크의 가중치 상태로 학습이 끝나버립니다. 실무에서 가장 흔히 겪는 실수 중 하나입니다."
+  },
+  {
+    "id": 55,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "초급",
+    "question": "장시간 소요되는 딥러닝 학습 도중 전원이 꺼지거나 세션이 끊어져도 학습 결과를 잃지 않도록, 매 에포크마다 검증 성능을 확인하여 최고 기록을 경신할 때마다 모델 가중치나 전체 모델을 디스크 파일(`.keras` 또는 `.h5`)로 자동 백업해 주는 Keras 콜백은?",
+    "code": "checkpoint = tf.keras.callbacks.____(\n    filepath='best_model.keras', monitor='val_loss', save_best_only=True\n)",
+    "options": [
+      "TensorBoard",
+      "CSVLogger",
+      "ModelCheckpoint",
+      "LearningRateScheduler"
+    ],
+    "answer": 2,
+    "explanation": "ModelCheckpoint 콜백에서 save_best_only=True를 설정하면 모니터링 지표(예: val_loss 최저 또는 val_accuracy 최고)가 이전 최고 기록을 경신할 때만 디스크에 덮어쓰기 저장하므로 언제나 최적의 프로덕션 모델을 안전하게 보존할 수 있습니다."
+  },
+  {
+    "id": 56,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "중급",
+    "question": "학습 초반에는 비교적 큰 학습률로 빠르게 내려가다가, 손실 함수 골짜기 바닥 근처에서 검증 손실(`val_loss`)이 더 이상 줄어들지 않고 정체(Plateau)될 때 학습률을 일정 비율(`factor`, 예: 0.5배 또는 0.1배)로 자동 감쇠시켜 미세한 최적점(Local/Global Minimum)에 정밀하게 안착하도록 돕는 콜백은?",
+    "code": "reduce_lr = tf.keras.callbacks.____(\n    monitor='val_loss', factor=0.5, patience=3, min_lr=1e-6\n)",
+    "options": [
+      "RemoteMonitor",
+      "TerminateOnNaN",
+      "BackupAndRestore",
+      "ReduceLROnPlateau"
+    ],
+    "answer": 3,
+    "explanation": "학습률이 끝까지 크면 최적점 주변에서 이리저리 진동(Overshooting)하며 수렴하지 못합니다. ReduceLROnPlateau는 patience 에포크 동안 개선이 멈추면 현재 학습률에 factor(예: 0.5)를 곱해 보폭을 줄여줌으로써 정밀한 파인튜닝 수렴을 유도합니다."
+  },
+  {
+    "id": 57,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "중급",
+    "question": "실무 프로덕션 학습에서 `ReduceLROnPlateau`와 `EarlyStopping` 두 콜백을 동시에 `callbacks=[early_stop, reduce_lr]`로 결합할 때, 두 콜백의 `patience` 값을 설정하는 가장 합리적인 엔지니어링 전략은?",
+    "code": "reduce_lr  = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=P_lr)\nearly_stop = EarlyStopping(monitor='val_loss', patience=P_es, restore_best_weights=True)",
+    "options": [
+      "ReduceLROnPlateau의 patience(P_lr)를 EarlyStopping의 patience(P_es)보다 작게 설정(예: P_lr=3, P_es=8)하여, 정체 발생 시 먼저 학습률을 줄여 재도약할 기회를 준 뒤 그래도 개선이 없을 때 최종적으로 조기 종료되게 한다.",
+      "EarlyStopping의 patience를 1로, ReduceLROnPlateau의 patience를 100으로 설정하여 학습률이 줄어들기 전에 무조건 먼저 종료되게 한다.",
+      "두 콜백은 문법적으로 동시에 리스트에 넣을 수 없다.",
+      "두 콜백 모두 monitor='train_loss'로만 설정해야 작동한다."
+    ],
+    "answer": 0,
+    "explanation": "만약 EarlyStopping의 patience가 ReduceLROnPlateau보다 작거나 같으면 학습률을 낮춰서 세밀하게 탐색해 볼 기회조차 얻지 못하고 학습이 종료됩니다. 따라서 P_lr < P_es (예: 3 에포크 정체 시 학습률 반감, 8~10 에포크 정체 시 최종 종료)로 계층적 방어선을 구축해야 합니다."
+  },
+  {
+    "id": 58,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "중급",
+    "question": "Keras 콜백에서 모니터링 지표로 손실(`val_loss`) 대신 정확도(`val_accuracy`)나 AUC(`val_auc`)를 지정할 때, 지표가 '작아져야 개선'인지 '커져야 개선'인지를 결정하는 `mode` 파라미터의 올바른 설정은?",
+    "code": "ckpt_loss = ModelCheckpoint('best_loss.keras', monitor='val_loss', mode=____)\nckpt_auc  = ModelCheckpoint('best_auc.keras',  monitor='val_auc',  mode=____)",
+    "options": [
+      "모든 지표는 예외 없이 mode='zero'로 설정해야 한다.",
+      "val_loss는 mode='max', val_accuracy는 mode='min'으로 설정해야 한다.",
+      "val_loss는 오차이므로 감소할 때가 최고 기록인 mode='min'이고, val_accuracy나 val_auc는 증가할 때가 최고 기록인 mode='max'이다. (표준 지표 이름의 경우 mode='auto'가 자동 추론함)",
+      "mode 파라미터는 학습 데이터의 배치 크기를 지정하는 숫자 인자이다."
+    ],
+    "answer": 2,
+    "explanation": "손실(loss, error) 계열 지표는 값이 낮을수록 우수하므로 mode='min'을 사용하고, 정확도(accuracy, auc, f1) 계열 지표는 값이 높을수록 우수하므로 mode='max'를 사용합니다."
+  },
+  {
+    "id": 59,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "고급",
+    "question": "깊은 신경망에서 각 계층을 통과할 때마다 입력 분포가 계속 흔들리는 '내부 공변량 변화(Internal Covariate Shift)'를 줄여 학습을 안정화하고 수렴 속도를 높이기 위해, 미니배치 단위로 평균을 0, 분산을 1로 정규화한 뒤 학습 가능한 스케일(`γ`)과 시프트(`β`)를 적용하는 계층은?",
+    "code": "x^hat_i = (x_i - μ_B) / sqrt(σ_B^2 + ε)\ny_i = γ * x^hat_i + β",
+    "options": [
+      "Flatten",
+      "MaxPooling2D",
+      "Embedding",
+      "BatchNormalization (배치 정규화)"
+    ],
+    "answer": 3,
+    "explanation": "배치 정규화(BatchNormalization)는 각 은닉층의 출력을 미니배치 평균과 분산으로 정규화한 후 γ(감마)와 β(베타)로 선형 변환하여, 기울기 소실/폭주를 막고 더 높은 학습률을 사용할 수 있게 해주며 약한 정규화(과적합 억제) 효과까지 제공합니다."
+  },
+  {
+    "id": 60,
+    "type": "multiple",
+    "category": "4. 프로덕션 모델 최적화 & 정규화 백신",
+    "day": "Ch 11~15",
+    "difficulty": "중급",
+    "question": "소규모 데이터셋(예: 초기 공정 데이터 500건)에서 딥러닝 모델을 학습할 때 과적합을 막고 일반화 성능을 극대화하기 위해 적용하는 '프로덕션 정규화 백신' 패키지 조합으로 가장 이상적인 것은?",
+    "code": "# 소량 데이터(N=500) 딥러닝 방어 파이프라인 설계",
+    "options": [
+      "은닉층에 Dropout 및 L2 가중치 규제를 적용하고, 데이터 증강(Data Augmentation)으로 다양성을 확보하며, 콜백으로 EarlyStopping(restore_best_weights=True), ModelCheckpoint, ReduceLROnPlateau를 함께 연동한다.",
+      "드롭아웃을 모두 제거하고 은닉층을 100개로 늘린 뒤 검증 세트 없이 10,000 에포크 동안 끝까지 학습시킨다.",
+      "활성화 함수를 모두 제거하여 선형 방정식으로 만들고 학습률을 100.0으로 설정한다.",
+      "훈련 데이터와 테스트 데이터를 하나로 합쳐서 학습시킨 뒤 같은 데이터로 평가한다."
+    ],
+    "answer": 0,
+    "explanation": "소량 데이터 환경에서는 모델 구조 측면의 규제(적절한 파라미터 규모 + Dropout + L2 Weight Decay), 데이터 측면의 보강(Data Augmentation), 학습 제어 측면의 콜백 3총사(EarlyStopping + ModelCheckpoint + ReduceLROnPlateau)를 결합해야 과적합 없는 강건한 프로덕션 모델을 얻을 수 있습니다."
+  },
+  {
+    "id": 61,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "초급",
+    "question": "2017년 《Attention Is All You Need》 논문에서 제안된 트랜스포머(Transformer) 아키텍처가 기존 순환 신경망(RNN/LSTM)의 순차 처리 구조를 완전히 제거하고 달성한 2대 핵심 혁신은?",
+    "code": "RNN/LSTM   : t=1 -> t=2 -> t=3 -> ... -> t=T (순차 직렬 연산, O(T) 병목)\nTransformer: 전체 시퀀스 토큰을 한 번에 행렬 연산! (Self-Attention)",
+    "options": [
+      "시퀀스 내 모든 토큰을 동시에 처리하여 GPU 대규모 병렬 연산(Parallelization)이 가능해졌으며, 토큰 간 거리에 상관없이 한 번의 연산(경로 길이 O(1))으로 직접 참조하여 장기 의존성(Long-Range Dependency) 문제를 근본적으로 해결했다.",
+      "단어를 하나씩 순서대로 처리하여 RNN보다 학습 속도를 1/100로 늦추었다.",
+      "가중치 행렬을 모두 없애고 오직 조건문(If-Else)만으로 문장을 번역한다.",
+      "문장의 길이가 5단어를 넘어가면 앞선 단어를 무조건 삭제한다."
+    ],
+    "answer": 0,
+    "explanation": "RNN은 t-1 시점 계산이 끝나야 t 시점을 계산할 수 있어 GPU 병렬화가 불가능하고 거리가 멀어지면 정보가 희석됩니다. 트랜스포머는 Self-Attention을 통해 문장 내 모든 단어 쌍의 관계를 한 번의 행렬 곱으로 동시에 계산하므로 병렬 학습 속도와 장거리 문맥 파악 능력을 비약적으로 끌어올렸습니다."
+  },
+  {
+    "id": 62,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "중급",
+    "question": "트랜스포머의 셀프 어텐션(Self-Attention) 메커니즘에서 입력 토큰 임베딩 `X`에 세 개의 가중치 행렬(`W_Q`, `W_K`, `W_V`)을 곱해 생성하는 3대 핵심 벡터 `Q`, `K`, `V`의 명칭과 정보 검색 관점의 역할을 바르게 설명한 것은?",
+    "code": "Q = X @ W_Q,   K = X @ W_K,   V = X @ W_V",
+    "options": [
+      "Quantile(사분위수), Kernel(커널), Variance(분산)",
+      "Query(질의: 현재 토큰이 다른 토큰들을 찾을 때 던지는 질문 벡터), Key(키: 각 토큰이Query와 매칭될 때 내보이는 색인/견출지 벡터), Value(값: 어텐션 가중치에 따라 실제로 합산되어 전달될 알맹이 정보 벡터)",
+      "Queue(대기열), Keyframe(키프레임), Volume(볼륨)",
+      "Quotient(몫), K-means(군집), Validation(검증)"
+    ],
+    "answer": 1,
+    "explanation": "셀프 어텐션은 데이터베이스 검색과 유사하게 현재 토큰의 Query(질의)와 문장 내 모든 토큰의 Key(색인)를 내적하여 연관도 점수(Attention Score)를 구하고, 이를 Softmax 확률로 바꾼 뒤 각 토큰의 Value(실제 의미 정보)를 가중 합산하여 문맥이 반영된 새로운 표현을 만듭니다."
+  },
+  {
+    "id": 63,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "고급",
+    "question": "트랜스포머의 핵심 수식인 `Scaled Dot-Product Attention`: `Attention(Q, K, V) = softmax((Q K^T) / sqrt(d_k)) V` 에서 내적 행렬 `Q K^T`를 키 벡터 차원의 제곱근인 `sqrt(d_k)`로 나누어 스케일링하는 수학적 이유는?",
+    "code": "score = np.matmul(Q, K.T) / np.sqrt(d_k)\nweights = softmax(score)",
+    "options": [
+      "음수 값을 전부 복소수(허수)로 변환하기 위해서이다.",
+      "행렬의 가로·세로 차원 개수를 절반으로 줄이기 위해서이다.",
+      "차원 수 d_k가 커질수록 내적(Q K^T) 값의 분산이 d_k배로 커져 극단적으로 큰 양수/음수가 되며, 이로 인해 Softmax 함수가 한쪽만 1이고 나머지는 0이 되는 포화(Saturation) 영역에 빠져 기울기가 0으로 소실되는 현상을 방지하기 위해서이다.",
+      "가중치 행렬을 정수(int)로 반올림하기 위해서이다."
+    ],
+    "answer": 2,
+    "explanation": "Q와 K의 각 성분이 평균 0, 분산 1인 독립 확률변수일 때 두 벡터의 내적 Q·K는 평균 0, 분산 d_k를 가집니다. d_k가 크면(예: 64) 내적 값이 너무 커져 Softmax가 원-핫에 가깝게 쏠리고 미분값(기울기)이 0이 되어 학습이 멈추므로, 표준편차인 sqrt(d_k)로 나누어 분산을 다시 1로 정규화합니다."
+  },
+  {
+    "id": 64,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "중급",
+    "question": "트랜스포머에서 단일 어텐션(Single-Head Attention) 대신 임베딩 차원 `d_model`(예: 512)을 `h`개(예: 8개)의 작은 하위 공간(`d_k = 64`)으로 쪼개어 병렬로 어텐션을 수행한 뒤 다시 이어 붙이는 `Multi-Head Attention`을 사용하는 핵심 이유는?",
+    "code": "MultiHead(Q, K, V) = Concat(head_1, ..., head_h) W_O\nwhere head_i = Attention(Q W_i^Q, K W_i^K, V W_i^V)",
+    "options": [
+      "토큰 개수를 8배로 늘려 문장을 길게 만들기 위해서이다.",
+      "어텐션 연산을 1개만 남기고 나머지 7개 헤드의 결과를 전부 버리기 위해서이다.",
+      "위치 인코딩(Positional Encoding)을 사용하지 않기 위해서이다.",
+      "모델이 단일 관점에 갇히지 않고, 서로 다른 부분 공간(Representation Subspaces)에서 구문론적 관계, 대명사 지시 대상, 시제, 의미적 연관성 등 다양한 문맥 패턴을 동시에 병렬로 포착할 수 있기 때문이다."
+    ],
+    "answer": 3,
+    "explanation": "단일 어텐션은 한 가지 지배적인 관계에만 집중하기 쉽지만, Multi-Head Attention은 여러 개의 독립된 어텐션 헤드가 각각 문법 구조, 단어 간 호응, 지시 대명사 연결 등 서로 다른 문맥적 관점을 동시에 살펴본 뒤 결합하므로 표현력이 훨씬 풍부해집니다."
+  },
+  {
+    "id": 65,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "중급",
+    "question": "순환 구조를 제거한 트랜스포머의 Self-Attention은 자체적으로는 단어의 어순(예: '개가 사람을 물었다' vs '사람이 개를 물었다')을 구분하지 못하는 순서 불변(Permutation Equivariant) 연산이다. 이를 해결하기 위해 입력 임베딩에 토큰의 위치 정보를 주입하는 장치는?",
+    "code": "Input_Representation = Token_Embedding(X) + ____(pos)",
+    "options": [
+      "드롭아웃 마스킹 (Dropout Masking)",
+      "포지셔널 인코딩 / 위치 임베딩 (Positional Encoding / Positional Embedding)",
+      "배치 정규화 (Batch Normalization)",
+      "맥스 풀링 (Max Pooling)"
+    ],
+    "answer": 1,
+    "explanation": "Self-Attention은 모든 토큰을 동시에 내적하므로 위치 정보가 없으면 단어 순서가 뒤바뀌어도 동일한 어텐션 값을 계산합니다. 따라서 입력 단계에서 사인·코사인 주파수 함수나 학습 가능한 위치 벡터인 포지셔널 인코딩(Positional Encoding)을 토큰 임베딩에 더해주어 어순 정보를 부여합니다."
+  },
+  {
+    "id": 66,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "중급",
+    "question": "트랜스포머의 각 서브 레이어(Multi-Head Attention, Feed-Forward Network) 직후에 배치된 `Add & Norm` 블록(`LayerNorm(x + Sublayer(x))`)의 두 가지 구성 요소와 그 역할로 가장 올바른 것은?",
+    "code": "out = LayerNormalization(x + Sublayer(x))",
+    "options": [
+      "Add는 문장 길이를 2배로 늘리고, Norm은 어휘 사전 크기를 절반으로 줄인다.",
+      "Add는 모든 가중치를 0으로 더하는 연산이고, Norm은 이미지를 흑백으로 바꾸는 연산이다.",
+      "Add는 입력 x를 출력에 그대로 더해주는 잔차 연결(Residual / Skip Connection)로 깊은 층에서 기울기가 소실되지 않고 직접 흐르게 하며, Norm은 각 샘플(토큰) 내 특성 차원들을 정규화하는 계층 정규화(Layer Normalization)로 시퀀스 길이나 배치 크기에 무관하게 안정적인 학습을 보장한다.",
+      "Add & Norm은 오직 추론 시에만 작동하고 훈련 시에는 꺼진다."
+    ],
+    "answer": 2,
+    "explanation": "ResNet에서 유래한 잔차 연결(Add: x + Sublayer(x))은 역전파 시 미분값에 항등항(+1)을 만들어 깊은 트랜스포머 적층을 가능하게 하고, Layer Normalization(Norm)은 배치 축이 아닌 각 토큰의 임베딩 차원 축을 따라 정규화하여 가변 길이 시퀀스 학습을 안정화합니다."
+  },
+  {
+    "id": 67,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "초급",
+    "question": "트랜스포머의 인코더(Encoder)와 디코더(Decoder) 중, 문장의 앞뒤 양방향(Bidirectional) 문맥을 모두 참조하여 문장 분류·개체명 인식·감성 분석 등 '언어 이해(NLU)'에 특화된 모델과, 앞선 단어들만 보고 다음 단어를 순차적으로 예측하는 단방향(Autoregressive) 구조로 '텍스트 생성(NLG)'에 특화된 모델을 순서대로 바르게 짝지은 것은?",
+    "code": "- 양방향 트랜스포머 인코더 기반 모델 : [   A   ]\n- 단방향 트랜스포머 디코더 기반 모델 : [   B   ]",
+    "options": [
+      "A: GAN / B: CNN",
+      "A: LightGBM / B: XGBoost",
+      "A: GPT / B: BERT",
+      "A: BERT / B: GPT"
+    ],
+    "answer": 3,
+    "explanation": "구글의 BERT(Bidirectional Encoder Representations from Transformers)는 트랜스포머 인코더를 쌓아 좌우 양방향 문맥을 깊게 이해하는 모델이고, OpenAI의 GPT(Generative Pre-trained Transformer)는 트랜스포머 디코더를 쌓아 이전 토큰들로부터 다음 토큰을 생성하는 자기회귀(Autoregressive) 모델입니다."
+  },
+  {
+    "id": 68,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "중급",
+    "question": "BERT가 대규모 비라벨 텍스트 코퍼스로부터 양방향 문맥 표현을 스스로 학습(Self-supervised Pre-training)하기 위해 사용한 두 가지 사전학습 과제는?",
+    "code": "입력 예: [CLS] 오늘 날씨가 너무 [MASK] 산책을 갔다 [SEP] 기분이 상쾌했다 [SEP]",
+    "options": [
+      "마스크드 언어 모델(MLM: 문장 내 토큰의 15%를 무작위로 가리고 좌우 문맥으로 원래 단어 맞히기)과 다음 문장 예측(NSP: 두 문장 A, B가 실제로 이어지는 문장인지 판별하기)",
+      "부트스트랩 집계(Bagging)와 잔차 부스팅(Boosting)",
+      "객체 탐지(Object Detection)와 시맨틱 분할(Semantic Segmentation)",
+      "적대적 생성(Generator)과 진위 판별(Discriminator)"
+    ],
+    "answer": 0,
+    "explanation": "BERT는 양방향 어텐션에서 정답 토큰이 자기 자신을 미리 컨닝하는 것을 막기 위해 전체 토큰의 15%를 [MASK] 등으로 가린 뒤 주변 전후 문맥만으로 복원하는 MLM(Masked Language Model)과, 문장 간 관계를 학습하는 NSP(Next Sentence Prediction)로 사전학습을 수행합니다."
+  },
+  {
+    "id": 69,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "고급",
+    "question": "GPT 계열(Decoder-only) 모델이 훈련 단계에서 전체 문장을 한꺼번에 입력받아 병렬 연산하면서도, 시점 `t`의 단어가 미래 시점(`t+1, t+2, ...`)의 정답 단어를 미리 훔쳐보지 못하도록(인과성 보존) 어텐션 행렬의 대각선 위쪽(Upper Triangular) 영역에 채워 넣는 값은?",
+    "code": "# Causal / Look-ahead Mask 적용 후 Softmax 통과:\nAttention(Q, K, V) = softmax((Q K^T) / sqrt(d_k) + M) V",
+    "options": [
+      "+1.0 (양의 1)",
+      "0.0 (영)",
+      "-∞ (음의 무한대, 코드상 -1e9 등 매우 작은 음수 — Softmax 통과 시 가중치가 정확히 0이 됨)",
+      "+∞ (양의 무한대)"
+    ],
+    "answer": 2,
+    "explanation": "Masked Self-Attention(Causal Mask)에서는 미래 토큰 위치(j > i)의 어텐션 점수에 -∞(실제 구현에서는 -1e9)를 더해줍니다. 지수 함수 특성상 exp(-∞) = 0 이므로 Softmax를 통과하면 미래 토큰에 대한 어텐션 가중치가 정확히 0이 되어 인과적(Autoregressive) 조건이 완벽히 지켜집니다."
+  },
+  {
+    "id": 70,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "중급",
+    "question": "BERT 입력 시퀀스의 맨 앞에 항상 부착되는 특수 토큰 `[CLS]`와 문장 경계에 부착되는 `[SEP]` 토큰 중, 문장 전체의 종합적인 문맥 정보를 응축하고 있어 감성 분류나 스팸 탐지 시 최종 분류기(`Dense` 층)의 입력 벡터로 직접 사용되는 토큰은?",
+    "code": "Tokens: [ [CLS], '이', '영화', '정말', '최고야', [SEP] ]\nClassifier_Input = last_hidden_state[:, 0, :]  # 0번 인덱스 토큰 벡터 추출!",
+    "options": [
+      "[MASK] 토큰 (Mask Token)",
+      "[PAD] 토큰 (Padding Token)",
+      "[UNK] 토큰 (Unknown Token)",
+      "[CLS] 토큰 (Classification Token)"
+    ],
+    "answer": 3,
+    "explanation": "BERT는 시퀀스의 첫 번째 위치(인덱스 0)에 항상 [CLS] 토큰을 배치하며, 트랜스포머 인코더 층들을 거치면서 문장 내 모든 단어와의 Self-Attention을 통해 문장 전체의 의미가 [CLS] 위치의 최종 은닉 벡터로 집약되므로 문장 수준 분류(Classification) 헤드의 입력으로 사용됩니다."
+  },
+  {
+    "id": 71,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "초급",
+    "question": "이언 굿펠로(Ian Goodfellow)가 제안한 적대적 생성 신경망(GAN, Generative Adversarial Networks)을 구성하는 두 신경망의 이름과 역할을 경찰과 위조지폐범의 비유로 가장 올바르게 설명한 것은?",
+    "code": "Noise z ~ p_z(z) ──> [  G  ] ──> 가짜 샘플 G(z)\n진짜 샘플 x / 가짜 G(z) ──> [  D  ] ──> 진짜일 확률 [0, 1]",
+    "options": [
+      "생성자(Generator, 위조지폐범: 무작위 잠재 노이즈 벡터 z를 입력받아 진짜 데이터와 구분할 수 없을 만큼 정교한 가짜 데이터를 생성)와 판별자(Discriminator, 경찰: 입력된 데이터가 실제 훈련 데이터인지 생성자가 만든 가짜인지 0~1 확률로 진위를 판별)",
+      "인코더(Encoder: 이미지를 압축)와 디코더(Decoder: 이미지를 삭제)",
+      "에이전트(Agent: 보상을 받음)와 환경(Environment: 상태를 초기화함)",
+      "질의자(Query)와 응답자(Value)"
+    ],
+    "answer": 0,
+    "explanation": "GAN은 가짜 데이터를 진짜처럼 정교하게 만들어 판별자를 속이려는 생성자(Generator, G)와, 진짜 데이터(1)와 가짜 데이터(0)를 날카롭게 구별해내려는 판별자(Discriminator, D)가 서로 적대적으로 경쟁(Adversarial Competition)하며 동반 성장하는 생성 모델입니다."
+  },
+  {
+    "id": 72,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "고급",
+    "question": "GAN의 미니맥스(Minimax) 2인 영합 게임 목적 함수 `min_G max_D V(D, G) = E_{x}[log D(x)] + E_{z}[log(1 - D(G(z)))]` 에서 판별자 `D`와 생성자 `G`의 최적화 목표로 가장 정확한 것은?",
+    "code": "min_G max_D V(D, G) = E_{x ~ p_data}[log D(x)] + E_{z ~ p_z}[log(1 - D(G(z)))]",
+    "options": [
+      "판별자 D는 진짜 데이터 x에 대해 D(x) → 0, 가짜 데이터 G(z)에 대해 D(G(z)) → 1이 되도록 학습한다.",
+      "판별자 D는 진짜 데이터에 대해 D(x) → 1, 가짜 데이터에 대해 D(G(z)) → 0이 되도록 V(D, G)를 최대화(max_D)하고, 생성자 G는 자신이 만든 가짜를 판별자가 진짜(D(G(z)) → 1)로 착각하도록 log(1 - D(G(z)))를 최소화(min_G)한다.",
+      "생성자 G와 판별자 D는 동일한 가중치를 공유하며 항상 같은 방향으로 손실을 키운다.",
+      "생성자 G는 판별자 D의 출력이 항상 0이 되도록 학습한다."
+    ],
+    "answer": 1,
+    "explanation": "판별자 D의 입장에서는 진짜(x)에 1을, 가짜(G(z))에 0을 출력할 때 log D(x) + log(1 - D(G(z)))가 0(최댓값)에 가까워지므로 V(D,G)를 최대화(max_D)합니다. 반면 생성자 G는 D(G(z))가 1에 가까워져 log(1 - D(G(z)))가 작아지도록 V(D,G)를 최소화(min_G, 실무에서는 -log D(G(z)) 최소화)합니다."
+  },
+  {
+    "id": 73,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "중급",
+    "question": "GAN 학습이 이상적으로 완료되어 생성자 `G`가 실제 데이터의 확률 분포를 완벽히 모사(`p_g = p_data`)하는 내쉬 균형(Nash Equilibrium) 상태에 도달했을 때, 판별자 `D`가 모든 입력(진짜든 가짜든)에 대해 출력하는 이론적 확률 값은?",
+    "code": "최적 판별자 수식: D*(x) = p_data(x) / (p_data(x) + p_g(x))\nWhen p_g(x) == p_data(x)  ===>  D*(x) = ?",
+    "options": [
+      "1.0 (100%)",
+      "0.0 (0%)",
+      "-1.0",
+      "0.5 (50% — 진짜와 가짜가 완벽히 동일해져 동전 던지기처럼 반반으로 찍을 수밖에 없는 상태)"
+    ],
+    "answer": 3,
+    "explanation": "생성자 분포 p_g가 실제 데이터 분포 p_data와 완전히 일치하면 최적 판별자 수식 D*(x) = p_data / (p_data + p_g) = 1 / (1 + 1) = 0.5가 됩니다. 즉 위조지폐가 진폐와 완벽히 같아져서 경찰조차 진짜인지 가짜인지 50% 확률로밖에 추측하지 못하는 균형점입니다."
+  },
+  {
+    "id": 74,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "중급",
+    "question": "GAN 학습을 구현할 때 한 미니배치 안에서 판별자(`D`)와 생성자(`G`)의 가중치를 번갈아(Alternating) 업데이트하는 올바른 프로덕션 코드 패턴은?",
+    "code": "# 1단계: Discriminator 학습 (진짜=1, 가짜=0)\n# 2단계: Generator 학습 (가짜 G(z)를 넣었을 때 D가 1이라고 판정하도록!)",
+    "options": [
+      "1단계에서는 D만 업데이트하고, 2단계에서 G를 학습시킬 때는 판별자 D의 가중치를 동결(`D.trainable = False`)한 채 가짜 샘플 `G(z)`에 대한 타깃 라벨을 `1(진짜)`로 주어 역전파 오차가 D를 통과해 G의 가중치만 업데이트되도록 한다.",
+      "2단계에서 생성자 G를 학습시킬 때도 판별자 D의 가중치를 함께 업데이트하여 D가 스스로 속아 넘어가게 만든다.",
+      "판별자 D는 처음 1 에포크만 학습하고 이후에는 영구 삭제한다.",
+      "생성자 G에 실제 훈련 이미지 x를 그대로 입력하여 복사하게 만든다."
+    ],
+    "answer": 0,
+    "explanation": "생성자 G를 업데이트할 때 판별자 D의 가중치까지 같이 바뀌어버리면 D가 일부러 가짜를 진짜라고 판정하도록 망가져버립니다. 따라서 G 학습 단계에서는 반드시 D의 가중치를 고정(freeze)한 상태에서 가짜 이미지가 진짜(1) 판정을 받도록 G의 파라미터만 갱신해야 합니다."
+  },
+  {
+    "id": 75,
+    "type": "multiple",
+    "category": "5. 최신 생성 AI & 대형 언어 모델 (16~18편)",
+    "day": "Ch 16~18",
+    "difficulty": "고급",
+    "question": "GAN 학습 중 흔히 발생하는 불안정성 문제로서, 생성자 `G`가 전체 데이터의 다양한 분포(예: 숫자 0~9 열 가지 모두)를 골고루 생성하지 못하고 판별자 `D`를 가장 쉽게 속일 수 있는 단 한두 가지 패턴(예: 오직 숫자 '1'만 계속 생성)만 반복 출력하며 다양성을 상실하는 현상은?",
+    "code": "잠재 벡터 z_1, z_2, z_3 (서로 다른 노이즈) ──> Generator ──> 똑같은 이미지 1장만 반복 출력!",
+    "options": [
+      "기울기 폭주 (Exploding Gradient)",
+      "모드 붕괴 (Mode Collapse)",
+      "죽은 ReLU (Dying ReLU)",
+      "내부 공변량 변화 (Internal Covariate Shift)"
+    ],
+    "answer": 1,
+    "explanation": "모드 붕괴(Mode Collapse)는 생성자 G가 다봉 분포(Multi-modal Distribution)를 가진 실제 데이터의 여러 모드(Mode) 중 판별자가 취약한 특정 모드 하나에만 몰빵하여 서로 다른 노이즈 z를 넣어도 거의 동일한 결과물만 찍어내는 GAN 고유의 대표적인 학습 실패 현상입니다."
+  },
+  {
+    "id": 76,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "초급",
+    "question": "피지컬 AI(Physical AI) 6자유도(6-DoF) 로봇 팔 제어에서 각 관절 각도(`θ_1 ~ θ_6`)가 주어졌을 때 그리퍼 끝단(End-Effector)의 3차원 공간 좌표 `(x, y, z)`를 구하는 '순기구학(Forward Kinematics)'과 반대로, 목표 물체의 좌표 `(x, y, z)`에 도달하기 위해 각 관절이 몇 도로 회전해야 하는지를 역산하는 문제는?",
+    "code": "순기구학(FK): 관절 각도 (θ_1, ..., θ_6) ──> 끝단 좌표 (x, y, z)\n[   ?   ]  : 목표 좌표 (x, y, z)       ──> 관절 각도 (θ_1, ..., θ_6)",
+    "options": [
+      "단순 선형 보간 (Linear Interpolation)",
+      "역기구학 (Inverse Kinematics, IK — 해가 여러 개이거나 비선형 삼각함수가 얽혀 있어 신경망·수치해석으로 근사 최적해를 구함)",
+      "주성분 분석 (PCA)",
+      "형태소 분석 (Tokenization)"
+    ],
+    "answer": 1,
+    "explanation": "목표 파지 위치 (x, y, z)와 자세(Roll, Pitch, Yaw)로부터 각 관절 모터의 회전 각도를 도출하는 것은 역기구학(Inverse Kinematics, IK)입니다. 다관절 로봇에서는 삼각함수 비선형성과 특이점(Singularity), 다중 해 문제가 존재하여 MLP/신경망 회귀나 수치 최적화로 실시간 해를 구합니다."
+  },
+  {
+    "id": 77,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "중급",
+    "question": "피지컬 AI 로봇 팔의 그리퍼(Gripper)에 장착된 4대 센서(접촉면적, 가압력 N, 미끄러짐 진동 Hz, 표면마찰계수) 데이터를 바탕으로 파지 성공/미끄러짐 실패 여부를 진단할 때, 현업 로봇 제어 엔지니어가 즉각 PLC/제어기 안전 인터록(Interlock) 조건문으로 이식할 수 있도록 화이트박스 규칙을 추출하는 가장 적합한 모델은?",
+    "code": "|--- 가압력 <= 20.00 N  --> [파지 실패 위험]\n|--- 가압력 >  20.00 N\n|   |--- 미끄러짐진동 <= 2.50 Hz --> [안정 파지 성공]",
+    "options": [
+      "비지도 K-평균 군집화 (K-Means)",
+      "적대적 생성 신경망 (GAN)",
+      "의사결정 트리 (Decision Tree + export_text 규칙 추출)",
+      "워드투벡터 (Word2Vec)"
+    ],
+    "answer": 2,
+    "explanation": "로봇 그리퍼 안전 인터록이나 반도체 챔버 긴급 정지 규칙처럼 작업자와 제어기가 즉시 이해하고 검증할 수 있는 명시적 임계값 조건(If-Else)이 필요할 때는 의사결정 트리(Decision Tree)를 학습시킨 후 export_text()로 분기 규칙을 추출하는 것이 가장 효과적입니다."
+  },
+  {
+    "id": 78,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "중급",
+    "question": "로봇 팔 손목에 카메라를 장착한 Eye-in-Hand 비전 가이드 로보틱스(Vision-Guided Robotics) 파이프라인에서 `Conv2D ➔ MaxPooling2D ➔ Flatten ➔ Dense` 구조가 수행하는 역할을 가장 정확하게 설명한 것은?",
+    "code": "Camera Image (64, 64, 3) ──> [Conv2D + MaxPool2D] ──> [Flatten + Dense] ──> 파지 전략 / 3D 오프셋",
+    "options": [
+      "Flatten 계층이 로봇 팔의 물리적 관절 개수를 1개로 줄인다.",
+      "카메라 영상을 오디오 파형으로 바꾸어 스피커로 출력한다.",
+      "MaxPooling2D가 이미지 해상도를 4배로 확대하여 모터 온도를 높인다.",
+      "Conv2D와 MaxPooling2D가 작업대 위 부품의 윤곽선·방향 등 2D 공간 시각 특징을 추출 및 압축(연산량 75% 절감 및 미세 진동에 대한 위치 불변성 확보)하고, Flatten과 Dense가 이 시각 특징을 로봇 그리퍼의 파지 자세(Top-Grasp vs Side-Grasp 확률 또는 Δx, Δy, Δz 제어량)로 매핑한다."
+    ],
+    "answer": 3,
+    "explanation": "비전 가이드 로보틱스(VGR)에서 CNN의 합성곱/풀링 계층은 조명 변화나 미세한 흔들림 속에서도 대상 부품의 기하학적 특징을 강건하게 추출하고, 완전연결(Flatten+Dense) 계층은 추출된 시각 표현을 실제 로봇 제어 명령(분류 확률 또는 연속 좌표 회귀)으로 변환합니다."
+  },
+  {
+    "id": 79,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "고급",
+    "question": "최신 피지컬 AI 로보틱스에서 각광받는 VLA(Vision-Language-Action) 및 로봇 트랜스포머(RT-1, RT-2 등) 아키텍처에서, 작업 공간의 3D 비전·언어 지시문의 전체 맥락을 양방향으로 이해하는 역할과 로봇 관절의 연속적인 제어 액션 토큰(`Action_t`)을 시간 순서대로 생성하는 역할을 수행하는 아키텍처 짝은?",
+    "code": "[카메라 영상 + '빨간 블록을 집어 박스에 넣어라'] ──> [양방향 문맥 인코딩] ──> [인과적 연속 액션 생성]",
+    "options": [
+      "장면/명령 문맥 인코딩: BERT형 양방향 인코더 / 순차 제어 액션 생성: GPT형 단방향 자기회귀(Autoregressive) 디코더",
+      "장면/명령 문맥 인코딩: K-Means / 순차 제어 액션 생성: DBSCAN",
+      "장면/명령 문맥 인코딩: MinMaxScaler / 순차 제어 액션 생성: StandardScaler",
+      "장면/명령 문맥 인코딩: Dropout / 순차 제어 액션 생성: MaxPooling"
+    ],
+    "answer": 0,
+    "explanation": "피지컬 AI의 VLA 모델은 멀티모달 입력(시각 장면 + 자연어 작업 명령)의 전역적 관계를 양방향 어텐션(BERT/Encoder 방식)으로 통합 이해한 뒤, 미래 행동을 컨닝하지 않는 인과적 마스킹(GPT/Decoder 방식)을 통해 매 제어 주기마다 로봇 팔의 다음 행동 토큰(Δx, Δy, Δz, 그리퍼 개폐)을 자기회귀적으로 생성합니다."
+  },
+  {
+    "id": 80,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "고급",
+    "question": "실제 공장에서 로봇 팔이 물체를 떨어뜨리거나 충돌하는 실패 데이터를 수만 건 수집하면 설비 파손 위험과 막대한 비용이 발생한다. 이를 해결하기 위해 가상 물리 시뮬레이터나 GAN(적대적 생성 신경망)을 활용해 희귀한 비정형 물체의 파지 자세 및 센서 데이터를 대량 합성하여 실제 로봇 제어 성능을 높이는 접근법은?",
+    "code": "가상 합성 데이터(Synthetic Grasp Poses / GAN Augmentation) ──> 로봇 제어기 학습 ──> 실제 현장 배포",
+    "options": [
+      "과소적합 유도 (Underfitting Induction)",
+      "데이터 삭제 (Data Deletion)",
+      "Sim-to-Real 전이 및 GAN 기반 합성 데이터 증강 (Synthetic Data Augmentation)",
+      "원-핫 인코딩 (One-Hot Encoding)"
+    ],
+    "answer": 2,
+    "explanation": "현실 세계(Real)에서 수집하기 위험하거나 희귀한 엣지 케이스(비정형 물체 파지, 충돌 직전 센서 패턴 등)를 시뮬레이션 및 GAN 생성 모델로 합성·증강하여 학습시킨 뒤 실제 로봇에 이식하는 Sim-to-Real 및 합성 데이터 증강은 현대 피지컬 AI의 핵심 훈련 전략입니다."
+  },
+  {
+    "id": 81,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "초급",
+    "question": "반도체 파운드리 스마트 팩토리에서 웨이퍼 표면의 다이(Die)별 양품/불량 위치를 2차원 격자 이미지로 나타낸 '웨이퍼 빈 맵(Wafer Bin Map)'을 분석하여 Center, Donut, Edge-Ring, Scratch, Loc 등 불량 공간 패턴을 자동 분류할 때 가장 적합한 딥러닝 모델은?",
+    "code": "Wafer Map (2D 공간 격자 패턴: 가장자리 링 형태 불량 vs 선형 스크래치 불량) ──> [ ? ] ──> 불량 원인 분류",
+    "options": [
+      "단순 선형 회귀 (Simple Linear Regression)",
+      "시계열 이동평균 (Moving Average)",
+      "형태소 분석기 (Tokenizer)",
+      "2차원 합성곱 신경망 (2D CNN — 불량 다이들의 2차원 기하학적 군집·링·스크래치 형상을 공간적으로 추출)"
+    ],
+    "answer": 3,
+    "explanation": "웨이퍼 맵의 불량 패턴(플라즈마 식각 불균일로 인한 Edge-Ring, 기계적 취급 결함인 Scratch 등)은 전형적인 2차원 공간 기하학적 특징을 가지므로, 국소 수용장과 풀링을 통해 공간 형상을 포착하는 2D CNN이 압도적인 분류 정확도를 발휘합니다."
+  },
+  {
+    "id": 82,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "중급",
+    "question": "반도체 식각(Etching) 및 증착(CVD) 공정 설비에 부착된 수십 개의 FDC(Fault Detection and Classification) 환경 센서(챔버 압력, RF 파워, 가스 유량, 정전척 온도 등) 중 수율 저하를 유발하는 상위 핵심 공정 인자를 선별하고, 박막 두께 기반 수율 등급(Grade A/B/C)을 정밀 분류하는 데 가장 널리 쓰이는 정형 데이터 앙상블 조합은?",
+    "code": "Tabular FDC Sensor Data (수십 개 공정 변수) ──> [핵심 인자 도출 & 고성능 수율 등급 분류]",
+    "options": [
+      "Random Forest / XGBoost / LightGBM 트리 앙상블과 Feature Importance(및 SHAP) 분석",
+      "이미지만 처리하는 2D MaxPooling 단독 사용",
+      "가중치가 없는 Flatten 계층 단독 사용",
+      "비지도 문자열 압축 알고리즘"
+    ],
+    "answer": 0,
+    "explanation": "반도체 FDC 정형 센서 테이블 데이터에서는 변수 간 비선형 교호작용을 잘 포착하고 스케일링에 강건한 Random Forest, XGBoost, LightGBM이 최고의 분류 성능을 보이며, feature_importances_와 SHAP을 통해 공정 엔지니어에게 불량 원인이 된 센서와 임계 구간을 명확히 설명해 줍니다."
+  },
+  {
+    "id": 83,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "중급",
+    "question": "반도체 플라즈마 챔버나 로봇 관절 모터가 24시간 연속 가동될 때, 과거 수 시간~수 일간의 진공 펌프 압력·진동·온도 시계열 추이를 지속적으로 추적하여 설비가 완전히 고장 나기 전에 이상 징후와 잔여 수명(RUL)을 사전에 경보하는 '설비 예지보전(PdM, Predictive Maintenance)'에 가장 적합한 모델은?",
+    "code": "과거 24시간 센서 시퀀스 (Batch, 24, Sensors) ──> [장단기 시계열 기억 모델] ──> 과열/고장 사전 경보",
+    "options": [
+      "순서를 무시하는 단순 다수결 투표기",
+      "LSTM (Long Short-Term Memory) 및 시계열 Transformer",
+      "정적 이미지 크롭(Crop) 함수",
+      "원-핫 인코더 (OneHotEncoder)"
+    ],
+    "answer": 1,
+    "explanation": "설비의 피로 누적이나 드리프트(Drift)는 긴 시간에 걸쳐 서서히 나타나는 시계열 패턴이므로, 셀 상태(Cell State)와 게이트 구조를 통해 장기 의존성을 기억하는 LSTM이나 시계열 어텐션 모델이 설비 예지보전(PdM)의 핵심 엔진으로 사용됩니다."
+  },
+  {
+    "id": 84,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "중급",
+    "question": "스마트 팩토리 생산라인에서 양품(정상=0)이 99.5%이고 불량(결함=1)이 0.5%에 불과한 극심한 '클래스 불균형(Class Imbalance)' 데이터를 학습할 때, 모델이 모든 샘플을 무조건 '정상(0)'이라고만 찍어도 99.5%가 나오는 함정에 빠지는 평가지표와 이를 극복하기 위한 올바른 실무 대책은?",
+    "code": "정상: 9,950건, 불량: 50건\n무조건 '정상' 예측 시: Accuracy = 99.5%, 하지만 실제 불량 검출률(Recall) = 0.0%!",
+    "options": [
+      "클래스 불균형은 모델 학습에 아무런 영향을 주지 않으므로 단순 Accuracy만 보면 된다.",
+      "함정 지표: F1-Score / 대책: 불량 데이터 50건을 마저 삭제하여 정상 데이터만 100%로 만든다.",
+      "함정 지표: 재현율(Recall) / 대책: 모든 데이터를 불량으로 라벨링한다.",
+      "함정 지표: 단순 정확도(Accuracy) / 대책: 정밀도(Precision)·재현율(Recall)·F1-Score·PR-AUC로 평가하고, 학습 시 소수 클래스 가중치 부여(class_weight='balanced' / scale_pos_weight) 또는 SMOTE·GAN 기반 불량 데이터 증강을 적용한다."
+    ],
+    "answer": 3,
+    "explanation": "불량률이 0.5%인 제조 현장에서 단순 정확도(Accuracy)는 아무 의미가 없습니다(Accuracy Paradox). 실제 불량을 놓치지 않고 잡아내는 재현율(Recall)과 F1-Score, PR-AUC를 핵심 지표로 삼아야 하며, 비용 민감 학습(class_weight)이나 GAN/SMOTE 합성 증강으로 불균형을 해소해야 합니다."
+  },
+  {
+    "id": 85,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "고급",
+    "question": "반도체 신규 극자외선(EUV) 노광 설비나 신규 로봇 라인 도입 직후에는 축적된 공정 데이터가 수백 건(Small Data)에 불과하다. 이러한 초기 소량 데이터로 딥러닝 수율·제어 모델을 학습할 때 과적합을 방어하고 빠르게 현장에 안착시키기 위한 실무 기술 조합은?",
+    "code": "신규 라인 초기 데이터 (N = 500건) ──> 과적합 방어 & 빠른 수렴 파이프라인",
+    "options": [
+      "기존 유사 공정/설비에서 사전학습된 모델 가중치를 가져오는 전이 학습(Transfer Learning)을 활용하고, 은닉층에 Dropout(0.3)과 EarlyStopping(restore_best_weights=True) 및 ReduceLROnPlateau 콜백을 결합한다.",
+      "파라미터가 1,000만 개인 거대 신경망을 처음부터 무작위 초기화하여 규제 없이 5,000 에포크 학습시킨다.",
+      "검증 세트를 만들지 않고 500건 전체를 훈련에만 사용하여 훈련 손실이 0이 될 때까지 돌린다.",
+      "학습률을 10.0으로 높여서 가중치를 발산시킨다."
+    ],
+    "answer": 0,
+    "explanation": "데이터가 부족한 신규 공정 도입 초기에는 기존 성숙 공정 모델로부터 전이 학습(Transfer Learning / Fine-tuning)을 수행하고, Dropout 정규화와 EarlyStopping(최적 가중치 복원), ReduceLROnPlateau를 엄격히 적용해야 과적합 없이 안정적인 초기 수율을 확보할 수 있습니다."
+  },
+  {
+    "id": 86,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "중급",
+    "question": "초당 수백 개의 칩이 지나가는 반도체 고속 패키징(Packaging) 컨베이어 라인이나 실시간 로봇 제어 루프(제어 주기 1~10ms)에서 AI 모델을 엣지 디바이스(Edge AI)에 배포할 때, 추론 지연 시간(Inference Latency)을 줄이기 위한 실무 최적화 기법으로 가장 적절한 것은?",
+    "code": "실시간 엣지 제어 요구사항: 1회 추론 지연 시간(Latency) < 5 ms, 메모리 경량화 필수",
+    "options": [
+      "모델 크기를 100배로 키워 클라우드 서버를 왕복 통신하게 만들어 지연 시간을 10초로 늘린다.",
+      "정형 스크리닝에는 GOSS/EFB 기반의 초고속 LightGBM을 활용하고, 딥러닝 비전 모델은 32비트 부동소수점(FP32) 가중치를 16비트(FP16)나 8비트 정수(INT8)로 줄이는 모델 양자화(Quantization)·가지치기(Pruning)·지식 증류(Knowledge Distillation)를 적용한다.",
+      "추론할 때마다 매번 처음부터 모델을 재학습(fit)시킨다.",
+      "입력 이미지 해상도를 무조건 8K(7680×4320)로 확대한 뒤 풀링 없이 처리한다."
+    ],
+    "answer": 1,
+    "explanation": "실시간 제조·로봇 엣지 환경에서는 밀리초(ms) 단위의 엄격한 지연 시간(Latency) 제약이 존재합니다. 정형 데이터 고속 스크리닝에는 LightGBM이 탁월하며, 딥러닝 모델은 양자화(FP32→FP16/INT8), 경량 아키텍처(GAP 등), 지식 증류를 통해 정확도 손실 없이 연산 속도를 극대화합니다."
+  },
+  {
+    "id": 87,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "중급",
+    "question": "스마트 팩토리 현장에서 수십 년간 축적된 설비 알람 텍스트 로그와 베테랑 엔지니어들의 정비 조치 일지(Maintenance Log)를 AI로 자산화할 때, (1) 알람 로그의 문맥을 분석해 장애 유형을 자동 분류하는 작업과 (2) 장애 상황에 맞는 표준 정비 매뉴얼 및 조치 보고서 초안을 자동 생성하는 작업에 각각 가장 적합한 모델은?",
+    "code": "(1) 설비 알람 텍스트 문맥 이해 및 장애 등급 분류 : [   A   ]\n(2) 작업자 정비 조치 가이드 및 일지 자동 작성 생성: [   B   ]",
+    "options": [
+      "A: MaxPooling2D / B: Flatten",
+      "A: K-Means / B: StandardScaler",
+      "A: BERT (양방향 인코더 기반 문맥 분류) / B: GPT (자기회귀 디코더 기반 텍스트 생성 및 RAG 결합)",
+      "A: Dropout / B: EarlyStopping"
+    ],
+    "answer": 2,
+    "explanation": "비정형 텍스트 데이터 중 알람 로그의 앞뒤 맥락을 파악해 장애 원인을 분류(Classification)하는 과업에는 양방향 인코더인 BERT가 최적이며, 과거 정비 매뉴얼을 검색(RAG)하여 엔지니어에게 조치 절차 문장을 자연스럽게 작성·생성(Generation)해 주는 과업에는 GPT 계열 모델이 최적입니다."
+  },
+  {
+    "id": 88,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "중급",
+    "question": "2025~2026 최신 데이터 분석 프로젝트(이커머스 장바구니 유기 방어, OTT 구독 해지 7일 전 사전 감지 등)에서 과거의 '사후 대응(Reactive)' 방식과 차별화되는 '선제적 초개인화 예측 자동화(Predictive & Proactive Next-Best-Action)' 파이프라인의 핵심 흐름으로 가장 올바른 것은?",
+    "code": "[실시간 행동 신호 수집] ➔ [시계열·집계 피처 엔지니어링] ➔ [예측 확률 Score 산출 + SHAP 원인 분석] ➔ [자동 액션 트리거]",
+    "options": [
+      "세션 내 체류 시간 급감·스크롤 깊이·시청 변화율(Slope) 등 초기 의도 신호(Intent Signals)를 피처화하여 이탈 골든타임 전에 확률(Score)을 예측하고, 임계값(예: P > 0.7) 초과 시 SHAP 원인에 맞춘 개인별 최적 혜택(Next-Best-Action)을 실시간 자동 트리거한다.",
+      "고객이 이미 서비스를 완전히 탈퇴하고 1년이 지난 뒤에 전체 고객에게 동일한 스팸 메일을 발송한다.",
+      "모델이 왜 그런 예측을 했는지 마케터에게 절대 알려주지 않는 블랙박스만 고집한다.",
+      "고객의 개인 행동 데이터는 전혀 보지 않고 무작위 주사위를 굴려 쿠폰을 발송한다."
+    ],
+    "answer": 0,
+    "explanation": "현대 예측 자동화 솔루션은 이탈이나 결함이 발생한 뒤 수습하는 사후 대응(Reactive)을 넘어, 실시간 클릭스트림·시계열 변화율 피처와 부스팅/딥러닝 모델을 결합해 사건 발생 전 골든타임에 확률을 예측하고, XAI(SHAP) 근거를 바탕으로 맞춤형 액션(If Score > Threshold Then Action)을 자동 실행합니다."
+  },
+  {
+    "id": 89,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "초급",
+    "question": "실무 데이터 분석 및 AI 프로젝트를 4일(또는 단기 스프린트) 안에 성공적으로 완주하기 위한 단계별 엔지니어링 프레임워크에서, 단순 베이스라인 모델의 성능을 뛰어넘어 프로젝트의 성패와 변별력을 가르는 가장 핵심적인 데이터 가공 단계는?",
+    "code": "[Day 1: 문제 정의 & EDA] ➔ [Day 2: ???? (성능 차별화의 핵심!)] ➔ [Day 3: 모델링 & 튜닝] ➔ [Day 4: XAI & 액션 자동화]",
+    "options": [
+      "데이터를 열어보지도 않고 무작정 에포크 수만 10만 번으로 늘리는 단계",
+      "도메인 지식을 바탕으로 최신성(Recency)·빈도(Frequency)·시계열 변화 기울기(Slope)·비율·이동평균 등 모델이 패턴을 쉽게 포착할 수 있는 파생 변수를 창출하고 결측치·인코딩·스케일링을 정제하는 '심층 피처 엔지니어링(Feature Engineering)' 단계",
+      "모든 변수 이름을 한글에서 이모지로 바꾸는 단계",
+      "평가 지표가 낮게 나오면 테스트 데이터의 정답을 조작하는 단계"
+    ],
+    "answer": 1,
+    "explanation": "'Garbage In, Garbage Out' 원칙처럼 실무 머신러닝 프로젝트에서 가장 큰 성능 향상을 이끌어내는 핵심 단계는 원시 로그로부터 비즈니스 도메인 맥락(최근 변화율, 누적 비율, 시간대 패턴 등)이 담긴 파생 변수를 설계하는 심층 피처 엔지니어링(Feature Engineering)입니다."
+  },
+  {
+    "id": 90,
+    "type": "multiple",
+    "category": "6. 산업 융합 피지컬 AI & 스마트 팩토리 실무",
+    "day": "Ch 19~22 (실무)",
+    "difficulty": "고급",
+    "question": "본 과정(Book 21658: AI와 데이터 분석 22개 챕터 올인원 파이프라인)에서 다룬 18대 핵심 기술을 하나의 스마트 팩토리 및 자율 로봇 통합 관제 시스템으로 융합할 때, 데이터 유형별 최적의 AI 아키텍처 매칭으로 가장 완벽한 것은?",
+    "code": "통합 AI 아키텍처 매핑:\n(A) 정형 센서 테이블 & 수율 인자 XAI 해석\n(B) 2D 웨이퍼 결함 맵 & 로봇 비전 영상 인식\n(C) 설비 압력·온도·관절 궤적 시계열 예지보전\n(D) 멀티모달 문맥 이해, 정비 일지 생성 및 희귀 불량 데이터 합성 증강",
+    "options": [
+      "모든 데이터 유형에 예외 없이 1차 선형 회귀만 단독으로 사용한다.",
+      "(A) GAN,  (B) SimpleRNN,  (C) Decision Tree,  (D) MaxPooling2D",
+      "(A) Decision Tree / Random Forest / XGBoost / LightGBM + SHAP,  (B) CNN + MaxPooling2D + Flatten/Dense + ReLU/Softmax,  (C) SimpleRNN / LSTM,  (D) Transformer / BERT / GPT / GAN (및 EarlyStopping·Dropout·Callback 최적화 전 과정 적용)",
+      "비전 영상에는 원-핫 인코딩만 쓰고 시계열 데이터에는 Flatten만 사용한다."
+    ],
+    "answer": 2,
+    "explanation": "정형 데이터와 XAI에는 트리 앙상블(DT, RF, XGBoost, LightGBM + SHAP), 2D 이미지·비전에는 합성곱 신경망(CNN, MaxPooling2D, Flatten, Dense, ReLU, Softmax), 순차 시계열에는 순환 신경망(RNN, LSTM), 그리고 최신 문맥 이해·생성·데이터 증강에는 생성형 아키텍처(Transformer, BERT, GPT, GAN)를 배치하고 정규화 백신(Dropout, EarlyStopping, Callbacks)으로 최적화하는 것이 22개 챕터를 관통하는 엔드투엔드 AI 마스터 아키텍처입니다."
+  }
+]
